@@ -14,10 +14,12 @@ class Application(threading.Thread):
 
         self.data = {}
 
+        self.started = False
+
         @self.server.sio.on(f"update_{self.name}")
         def _send_data(*_) -> None:
             """Sends data to the client upon request"""
-            self.server.send_data(self.name, self.data)
+            pass
 
     def listener(self, source, event):
         """Gets notified when some data of a driver is updated"""
@@ -29,11 +31,18 @@ class Application(threading.Thread):
             return
         # Write your code here
 
-        if source == "pose" and event == "projected_data":
+        if self.started and source == "pose" and event == "projected_data":
             self.data = (self.hal.drivers["pose"].projected_data)
+            self.server.send_data(self.name, self.data)
+
+    def stop(self):
+        """Stops the application"""
+        self.started = False
 
     def run(self):
         """Thread that runs the application"""
+        self.started = True
+        pass
 
     def __str__(self):
         return str(self.name)
