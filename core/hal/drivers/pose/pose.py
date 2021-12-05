@@ -9,22 +9,24 @@ sys.path.append(CURR_DIR)
 
 import utils.hands_signs as hs
 import utils.pose_estimation as pe
-from driver import BaseDriver
+from ..driver import BaseDriver
 from utils.reflection import project
 
-
-class Pose(BaseDriver):
+class Driver(BaseDriver):
     """
     * Body pose from mediapipe
     ! Only one instance from mediapipe can run
     """
 
-    def __init__(self, name, parent, max_fps: int = 45):
+    def __init__(self, name: str, parent, max_fps: int = 45):
         super().__init__(name, parent)
 
         self.holistic = pe.init()
         self.sign_provider = hs.init()
         self.paused = False
+
+
+        self.requires.append("video")
 
         self.raw_data = {}
         self.registered["raw_data"] = []

@@ -1,21 +1,42 @@
 # Microphone driver
 
+import ctypes
 import os
 import sys
 
+import pyaudio
 import speech_recognition as sr
 
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(CURR_DIR)
 
-from driver import BaseDriver
+from ..driver import BaseDriver
 
 
-class Microphone(BaseDriver):
+class Driver(BaseDriver):
     """Driver to listen to the microphone"""
 
     def __init__(self, name, parent):
         super().__init__(name, parent)
+
+        # ----------Disable pyaudio warnings----------
+        ERROR_HANDLER_FUNC = ctypes.CFUNCTYPE(
+            None,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p
+        )
+
+        def py_error_handler(filename, line, function, err, fmt):
+            pass
+
+        c_error_handler = ERROR_HANDLER_FUNC(py_error_handler)
+        asound = ctypes.cdll.LoadLibrary('libasound.so')
+        asound.snd_lib_error_set_handler(c_error_handler)
+        # ----------------------------------------------
+
 
         self.recognizer = sr.Recognizer()
         self.source = sr.Microphone()

@@ -11,10 +11,10 @@ from gtts import gTTS
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(CURR_DIR)
 
-from driver import BaseDriver
+from ..driver import BaseDriver
 
 
-class Speaker(BaseDriver):
+class Driver(BaseDriver):
     """
     Speaker Driver to:
     - Generate and play audio based on text

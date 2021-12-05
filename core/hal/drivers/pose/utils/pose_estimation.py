@@ -3,7 +3,6 @@
 import cv2
 import mediapipe as mp
 
-
 def init():
     mp_holistic = mp.solutions.holistic
     return mp_holistic.Holistic(
