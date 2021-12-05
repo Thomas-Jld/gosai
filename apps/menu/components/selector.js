@@ -1,19 +1,8 @@
-let Selector = (sketch) => {
-    sketch.name = "selector";
-
-    sketch.movable = false;
-    sketch.latched = false;
-    sketch.activated = false;
-    sketch.clickable = false;
-    sketch.display_bubbles = false;
-    sketch.to_update = false;
-
-    sketch.mx = 0;
-    sketch.my = 0;
+export const Selector = (sketch) => {
 
     sketch.cursor = [0, 0];
 
-    // sketch.rotation = 0;
+    sketch.rotation = 0;
     sketch.sliding = 0;
 
     let description = `This is the alpha version of an interractive mirror. Place yourself at about 1m50 for a better experience. Use your left hand to display the menu.`
@@ -35,25 +24,28 @@ let Selector = (sketch) => {
 
         let demo_dance = new SelectBar("Dance", 300, 75);
         let demo_slr = new SelectBar("S.L.R", 300, 75);
-        let demo_bubble = new Bubble("play.svg", 150);
-        demo_bubble.add(demo_dance, 1);
-        demo_bubble.add(demo_slr, 2);
+        let bubble_demo = new Bubble("play.svg", 150);
+
+        bubble_demo.add(demo_dance, 1);
+        bubble_demo.add(demo_slr, 2);
 
 
         let description_panel = new InfoPanel(description, 300, 300);
-        let description_bubble = new Bubble("info.svg", 150);
-        description_bubble.add(description_panel, 2);
+        let bubble_description = new Bubble("info.svg", 150);
+
+        bubble_description.add(description_panel, 2);
 
 
         let settings_clock = new SelectBar("Show Clock", 300, 75);
         let settings_face = new SelectBar("Show Face", 300, 75);
         let settings_pose = new SelectBar("Show Pose", 300, 75);
         let settings_hands = new SelectBar("Show Hands", 300, 75);
-        let settings_bubble = new Bubble("settings.svg", 150);
-        settings_bubble.add(settings_clock, 1);
-        settings_bubble.add(settings_face, 2);
-        settings_bubble.add(settings_pose, 3);
-        settings_bubble.add(settings_hands, 4);
+        let bubble_panel = new Bubble("settings.svg", 150);
+
+        bubble_panel.add(settings_clock, 1);
+        bubble_panel.add(settings_face, 2);
+        bubble_panel.add(settings_pose, 3);
+        bubble_panel.add(settings_hands, 4);
 
 
         sketch.menu = new Menu(sketch.x, sketch.y, 150);
