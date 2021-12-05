@@ -1,12 +1,10 @@
-
-import os
-
+from core.console.console import Console
 from core.hal.hal import HardwareAbstractionLayer
+from core.manager.app_manager import AppManager
 from core.server.server import Server, start_chrome
-from app_manager import AppManager
 
 hal = HardwareAbstractionLayer()
-server = Server()
+server = Server(hal)
 server.start()
 
 app_manager = AppManager(hal, server)
@@ -15,4 +13,5 @@ app_manager.start("menu")
 
 start_chrome()
 
-hal.console()
+console = Console(hal, server, app_manager)
+console.start()
