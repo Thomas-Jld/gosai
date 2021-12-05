@@ -1,4 +1,4 @@
-let Template = ( sketch ) => {
+export const template = ( sketch ) => {
     sketch.name = "template"
 
     sketch.setup = (width, height, socket) => {
@@ -8,6 +8,8 @@ let Template = ( sketch ) => {
 
         });
     }
+
+    sketch.update = () => {}
 
     sketch.show = () => {
         sketch.clear();

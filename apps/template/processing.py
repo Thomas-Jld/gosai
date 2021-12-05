@@ -13,10 +13,12 @@ class Application(threading.Thread):
 
         self.data = {} # data that is sent to the js script
 
+        self.started = False
+
         @self.server.sio.on(f"update_{self.name}")
         def _send_data(*_) -> None:
             """Sends data to the client upon request"""
-            self.server.send_data(self.name, self.data)
+            pass
 
     def listener(self, source, event):
         """Gets notified when some data of a driver is updated"""
@@ -29,6 +31,14 @@ class Application(threading.Thread):
 
         # Write your code here (what to do when the data is recieved)
 
+    def stop(self):
+        """Stops the application"""
+        self.started = False
+
     def run(self):
         """Thread that runs the application"""
+        self.started = True
         pass
+
+    def __str__(self):
+        return str(self.name)
