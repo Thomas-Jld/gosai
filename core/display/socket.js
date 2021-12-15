@@ -22,6 +22,8 @@ socket.on("start_application", async (data) => {
         application.set(width, height, socket);
         modules[application_name] = application;
     }
+
+    socket.emit("started_" + application_name);
 });
 
 socket.on("stop_application", async (data) => {
