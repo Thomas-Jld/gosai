@@ -20,7 +20,7 @@ class Driver(BaseDriver):
     """
 
     def __init__(
-        self, name: str, parent, source = StandardCamera(640, 480), fps: int = 30
+        self, name: str, parent, source = IntelCamera(640, 480), fps: int = 30
     ):  # TODO: Create Camera object and inherit the others from it
         super().__init__(name, parent)
 

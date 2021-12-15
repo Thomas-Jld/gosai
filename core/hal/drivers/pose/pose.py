@@ -52,8 +52,11 @@ class Driver(BaseDriver):
                     and self.parent.drivers["video"].depth is not None
                 ):
                     self.raw_data = pe.find_all_poses(
-                        self.holistic, self.parent.drivers["video"].color, self.window
+                        self.holistic,
+                        self.parent.drivers["video"].color,
+                        self.window
                     )
+
                     self.notify("raw_data")
                     if self.debug_data:
                         print(self.raw_data)
