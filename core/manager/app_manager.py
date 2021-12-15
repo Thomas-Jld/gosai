@@ -10,11 +10,21 @@ class AppManager:
 
         self.name = "app_manager"
         self.available_apps = [
-            f.path.split("/")[-1] for f in os.scandir("apps") if f.is_dir()
+            f.name
+            for f in os.scandir("apps")
+            if f.is_dir() and f.name != "__pycache__" and f.name != "template"
         ]
         self.started_apps = {}
 
         self.data = {}
+
+        @self.server.sio.on("start_application")
+        def _(data) -> None:
+            self.start(data["application_name"])
+
+        @self.server.sio.on("stop_application")
+        def _(data) -> None:
+            self.stop(data["application_name"])
 
     def list_applications(self) -> list:
         """Lists all available applications"""
@@ -24,6 +34,20 @@ class AppManager:
         # )
         return self.available_apps
 
+    def list_started_applications(self) -> list:
+        """Lists all started applications"""
+
+        return list(self.started_apps.keys())
+
+    def list_stopped_applications(self) -> list:
+        """Lists all stopped applications"""
+
+        return [
+            app_name
+            for app_name in self.available_apps
+            if app_name not in self.started_apps
+        ]
+
     def start(self, app_name: str) -> None:
         """Starts an application"""
 
@@ -32,7 +56,7 @@ class AppManager:
                 # Import the python app
                 app = __import__(
                     f"apps.{app_name}.processing", fromlist=[None]
-                ).Application("menu", self.hal, self.server)
+                ).Application("menu", self.hal, self.server, self)
 
                 # Start the required drivers and subscribe to the required events
                 for driver_name in app.requires:
@@ -73,7 +97,6 @@ class AppManager:
                     self.server.send_data(
                         "stop_application", {"application_name": app_name}
                     )
-
 
                     del self.started_apps[app_name]
 
