@@ -3,11 +3,12 @@ import threading
 class Application(threading.Thread):
     """Template class for applications"""
 
-    def __init__(self, name, hal, server):
+    def __init__(self, name, hal, server, manager):
         threading.Thread.__init__(self)
         self.name = name
         self.hal = hal
         self.server = server
+        self.manager = manager
 
         self.requires = [] # Select what driver you want to use
 
@@ -31,6 +32,7 @@ class Application(threading.Thread):
 
         # Write your code here (what to do when the data is recieved)
 
+
     def stop(self):
         """Stops the application"""
         self.started = False
@@ -38,7 +40,6 @@ class Application(threading.Thread):
     def run(self):
         """Thread that runs the application"""
         self.started = True
-        pass
 
     def __str__(self):
         return str(self.name)

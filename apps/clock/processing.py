@@ -3,11 +3,12 @@ import threading
 class Application(threading.Thread):
     """Template class for applications"""
 
-    def __init__(self, name, hal, server):
+    def __init__(self, name, hal, server, manager):
         threading.Thread.__init__(self)
         self.name = name
         self.hal = hal
         self.server = server
+        self.manager = manager
 
         self.requires = [] # Select what driver you want to use
 

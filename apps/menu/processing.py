@@ -1,14 +1,15 @@
 import threading
-import time
+
 
 class Application(threading.Thread):
-    """Template class for applications"""
+    """Menu"""
 
-    def __init__(self, name, hal, server):
+    def __init__(self, name, hal, server, manager):
         threading.Thread.__init__(self)
         self.name = name
         self.hal = hal
         self.server = server
+        self.manager = manager
 
         self.requires = {"pose": ["projected_data"]}
 
@@ -16,10 +17,16 @@ class Application(threading.Thread):
 
         self.started = False
 
-        @self.server.sio.on(f"update_{self.name}")
+        @self.server.sio.on(f"started_{self.name}")
         def _send_data(*_) -> None:
             """Sends data to the client upon request"""
-            pass
+            self.server.send_data(
+                "list_applications",
+                {
+                    "started": self.manager.list_started_applications(),
+                    "stopped": self.manager.list_stopped_applications(),
+                },
+            )
 
     def listener(self, source, event):
         """Gets notified when some data of a driver is updated"""
@@ -32,7 +39,7 @@ class Application(threading.Thread):
         # Write your code here
 
         if self.started and source == "pose" and event == "projected_data":
-            self.data = (self.hal.drivers["pose"].projected_data)
+            self.data = self.hal.drivers["pose"].projected_data
             self.server.send_data(self.name, self.data)
 
     def stop(self):
@@ -42,7 +49,6 @@ class Application(threading.Thread):
     def run(self):
         """Thread that runs the application"""
         self.started = True
-        pass
 
     def __str__(self):
         return str(self.name)
