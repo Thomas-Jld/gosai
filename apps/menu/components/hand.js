@@ -51,6 +51,8 @@ export class Hand {
 
         this.show_hands_points = false;
         this.show_hands_lines = true;
+
+        this.sign = ["NONE", 0];
     }
 
     show(sketch) {
@@ -77,7 +79,7 @@ export class Hand {
             this.junctions.forEach(parts => {
                 parts.forEach(pair => {
                     if (
-                        this.hand_pose[pair[0]][3] >= 0.5 &&
+                        this.hand_pose[pair[0]][3] >= 0.4 &&
                         this.transposed_hand_pose[pair[0]][1] > 0 &&
                         this.transposed_hand_pose[pair[1]][1] > 0
                     ) {
@@ -95,9 +97,12 @@ export class Hand {
         sketch.pop();
     }
 
-    update_data(data) {
-        if (data != undefined) {
-            this.hand_pose = data
+    update_data(pose, sign) {
+        if (pose != undefined) {
+            this.hand_pose = pose
+        }
+        if (sign != undefined) {
+            this.sign = sign
         }
     }
 
