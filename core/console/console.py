@@ -2,6 +2,7 @@ import threading
 import time
 
 class Console(threading.Thread):
+    """ A console to interract with the OS """
     def __init__(self, hal, server, app_manager):
         threading.Thread.__init__(self)
         self.hal = hal
@@ -23,7 +24,7 @@ class Console(threading.Thread):
                 print("Available commands:")
                 print("exit - exit the application")
                 print("help - show this help")
-                print("list - list all available apps")
+                print("ls - list all available drivers")
                 print("restart - restart an app")
                 print("start - start an app")
                 print("stop - stop an app")
@@ -46,5 +47,26 @@ class Console(threading.Thread):
                     print("Please specify an application to stop")
                 else:
                     self.app_manager.stop(arguments[0])
+
+            elif execute == "restart":
+                if len(arguments) == 0:
+                    print("Please specify an application to restart")
+                elif len(arguments) == 1:
+                    self.app_manager.stop(arguments[0])
+                    self.app_manager.start(arguments[0])
+
             elif execute == "exit":
                 exit()
+
+            elif execute == "ls":
+                if len(arguments) == 1 and arguments[0] == "drivers":
+                    print("\n".join(self.hal.get_drivers()))
+
+                if len(arguments) == 2 and arguments[0] == "drivers" and arguments[1] == "started":
+                    print("\n".join(self.hal.get_started_drivers()))
+
+                if len(arguments) == 2 and arguments[0] == "drivers" and arguments[1] == "stopped":
+                    print("\n".join(self.hal.get_stopped_drivers()))
+
+            else:
+                print("Unknown command")
