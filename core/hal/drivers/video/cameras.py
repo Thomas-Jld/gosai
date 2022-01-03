@@ -1,6 +1,5 @@
 import cv2 as cv
 import numpy as np
-import pyrealsense2 as rs
 
 
 class StandardCamera:
@@ -28,6 +27,7 @@ class IntelCamera:
     """
 
     def __init__(self, width, height):
+        import pyrealsense2 as rs
 
         self.pipe = rs.pipeline()
         config = rs.config()
@@ -87,6 +87,7 @@ class IntelCamera:
 
     def reset(self):
         """Resets the camera"""
+        import pyrealsense2 as rs
         ctx = rs.context()
         devices = ctx.query_devices()
         for dev in devices:
