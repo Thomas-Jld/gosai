@@ -1,5 +1,6 @@
 export const clock = new p5((sketch) => {
     sketch.name = "clock";
+    sketch.z_index = 0
     sketch.activated = false;
 
     let r;
@@ -19,7 +20,7 @@ export const clock = new p5((sketch) => {
         ).position(
             sketch.x,
             sketch.y
-        );
+        ).style("z-index", sketch.z_index);
 
         r = sketch.min(sketch.width, sketch.height) * 0.5 - 3 * ec;
         sketch.angleMode(DEGREES);
