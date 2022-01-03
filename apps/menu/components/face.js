@@ -46,16 +46,17 @@ export class Face {
 
         this.name = name;
 
+        this.showing = true;
         this.show_face_points = true;
         this.show_face_lines = true;
     }
 
     show(sketch) {
+        if (!this.showing) return;
         sketch.push();
-
         sketch.fill(200);
         if (this.show_face_points) {
-            for (let i = 0; i < this.face_mesh.length; i++) {
+            for (let i = 0; i < this.transposed_face_mesh.length; i++) {
                 sketch.ellipse(
                     this.transposed_face_mesh[i][0],
                     this.transposed_face_mesh[i][1],
@@ -92,7 +93,7 @@ export class Face {
 
     update_data(data) {
         if (data != undefined) {
-            this.face_mesh = data
+            this.transposed_face_mesh = data
         }
     }
 

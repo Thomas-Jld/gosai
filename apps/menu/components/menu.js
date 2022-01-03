@@ -30,7 +30,7 @@ export class Menu {
         bubble_description.add(description_panel, 0);
 
         let settings_face = new SelectBar("Show Face", 300, 75);
-        let settings_pose = new SelectBar("Show Pose", 300, 75);
+        let settings_pose = new SelectBar("Show Body", 300, 75);
         let settings_hands = new SelectBar("Show Hands", 300, 75);
 
         bubble_settings.add(settings_face, 1);
@@ -53,6 +53,10 @@ export class Menu {
         this.bubbles[bubble_id].add_application(name, started);
     }
 
+    remove_all_from(bubble_id) {
+        this.bubbles[bubble_id].remove_all();
+    }
+
     unselect() {
         for (let i = 0; i < this.bubbles.length; i++) {
             if (this.bubbles[i].selected) {
@@ -73,8 +77,8 @@ export class Menu {
         if (
             this.left_hand !== undefined &&
             this.right_hand !== undefined &&
-            this.left_hand.transposed_hand_pose[8] !== undefined &&
-            this.right_hand.transposed_hand_pose[8] !== undefined) {
+            this.left_hand.hand_pose[8] !== undefined &&
+            this.right_hand.hand_pose[8] !== undefined) {
             if (
                 this.left_hand.sign[0] == "OPEN_HAND" && this.left_hand.sign[1] > 0.8
             ) {
@@ -82,8 +86,8 @@ export class Menu {
             } else {
                 this.display_bubbles = false;
             }
-            this.anchor = this.left_hand.transposed_hand_pose[8];
-            this.cursor = this.right_hand.transposed_hand_pose[8];
+            this.anchor = this.left_hand.hand_pose[8];
+            this.cursor = this.right_hand.hand_pose[8];
         }
 
         for (let i = 0; i < this.bubbles.length; i++) {
@@ -144,6 +148,10 @@ class Bubble {
         this.add(demo_app, this.bars.length);
         demo_app.type = "application";
         demo_app.selected = started;
+    }
+
+    remove_all() {
+        this.bars = [];
     }
 
     show(sketch) {
@@ -239,6 +247,7 @@ class SelectBar {
         this.selection_time = 40;
 
         this.sketch;
+        this.show_selection = false;
     }
 
 
@@ -267,6 +276,53 @@ class SelectBar {
                     this.rx, this.ry + this.per * this.h / 3,
                     this.rx - 1.7 * this.per * this.h / 3, this.ry);
             }
+
+            if(this.show_selection){
+                sketch.stroke(255);
+                sketch.strokeWeight(4);
+
+                sketch.noFill();
+
+                if (this.c < this.selection_time / 20) {
+                    sketch.line(this.rx + this.w + this.h / 4, this.ry,
+                        this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4 * this.c / (this.selection_time / 20));
+                } else if (this.c < 9 * this.selection_time / 20) {
+                    sketch.line(this.rx + this.w + this.h / 4, this.ry,
+                        this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4);
+                    sketch.line(this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4,
+                        this.rx + this.w + this.h / 4 - (this.w + this.h / 2) * (this.c - this.selection_time / 20) / (8 * this.selection_time / 20), this.ry - 3 * this.h / 4);
+
+                } else if (this.c < 11 * this.selection_time / 20) {
+                    sketch.line(this.rx + this.w + this.h / 4, this.ry,
+                        this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4);
+                    sketch.line(this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4,
+                        this.rx - this.h / 4, this.ry - 3 * this.h / 4);
+                    sketch.line(this.rx - this.h / 4, this.ry - 3 * this.h / 4,
+                        this.rx - this.h / 4, this.ry - 3 * this.h / 4 + 3 * this.h / 4 * (this.c - 9 * this.selection_time / 20) / (2 * this.selection_time / 20));
+
+                } else if (this.c < 19 * this.selection_time / 20) {
+                    sketch.line(this.rx + this.w + this.h / 4, this.ry,
+                        this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4);
+                    sketch.line(this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4,
+                        this.rx - this.h / 4, this.ry - 3 * this.h / 4);
+                    sketch.line(this.rx - this.h / 4, this.ry - 3 * this.h / 4,
+                        this.rx - this.h / 4, this.ry + 3 * this.h / 4);
+                    sketch.line(this.rx - this.h / 4, this.ry + 3 * this.h / 4,
+                        this.rx - this.h / 4 + (this.w + this.h / 2) * (this.c - 11 * this.selection_time / 20) / (8 * this.selection_time / 20), this.ry + 3 * this.h / 4);
+
+                } else if (this.c < this.selection_time) {
+                    sketch.line(this.rx + this.w + this.h / 4, this.ry,
+                        this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4);
+                    sketch.line(this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4,
+                        this.rx - this.h / 4, this.ry - 3 * this.h / 4);
+                    sketch.line(this.rx - this.h / 4, this.ry - 3 * this.h / 4,
+                        this.rx - this.h / 4, this.ry + 3 * this.h / 4);
+                    sketch.line(this.rx - this.h / 4, this.ry + 3 * this.h / 4,
+                        this.rx + this.w + this.h / 4, this.ry + 3 * this.h / 4);
+                    sketch.line(this.rx + this.w + this.h / 4, this.ry + 3 * this.h / 4,
+                        this.rx + this.w + this.h / 4, this.ry + 3 * this.h / 4 - 3 * this.h / 4 * (this.c - 19 * this.selection_time / 20) / (this.selection_time / 20));
+                }
+            }
         }
     }
 
@@ -276,6 +332,7 @@ class SelectBar {
         this.y = anchor[1];
         this.rx = this.x + 3 * this.per * 75;
         this.ry = this.y + this.per * (this.yoffset + this.ypoffset);
+        this.show_selection = false;
 
         if (
             (!this.parent.selected && this.hidden) ||
@@ -292,52 +349,9 @@ class SelectBar {
                 if (cursor[0] > this.rx - this.h / 4 && cursor[0] < this.rx + this.w + this.h / 4 &&
                     cursor[1] > this.ry - 3 * this.h / 4 && cursor[1] < this.ry + 3 * this.h / 4) {
 
+                    this.show_selection = true;
                     this.c += 1;
-
-                    this.sketch.stroke(255);
-                    this.sketch.strokeWeight(4);
-
-                    this.sketch.noFill();
-                    //console.log(this.c);
-                    if (this.c < this.selection_time / 20) {
-                        this.sketch.line(this.rx + this.w + this.h / 4, this.ry,
-                            this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4 * this.c / (this.selection_time / 20));
-                    } else if (this.c < 9 * this.selection_time / 20) {
-                        this.sketch.line(this.rx + this.w + this.h / 4, this.ry,
-                            this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4);
-                        this.sketch.line(this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4,
-                            this.rx + this.w + this.h / 4 - (this.w + this.h / 2) * (this.c - this.selection_time / 20) / (8 * this.selection_time / 20), this.ry - 3 * this.h / 4);
-
-                    } else if (this.c < 11 * this.selection_time / 20) {
-                        this.sketch.line(this.rx + this.w + this.h / 4, this.ry,
-                            this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4);
-                        this.sketch.line(this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4,
-                            this.rx - this.h / 4, this.ry - 3 * this.h / 4);
-                        this.sketch.line(this.rx - this.h / 4, this.ry - 3 * this.h / 4,
-                            this.rx - this.h / 4, this.ry - 3 * this.h / 4 + 3 * this.h / 4 * (this.c - 9 * this.selection_time / 20) / (2 * this.selection_time / 20));
-
-                    } else if (this.c < 19 * this.selection_time / 20) {
-                        this.sketch.line(this.rx + this.w + this.h / 4, this.ry,
-                            this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4);
-                        this.sketch.line(this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4,
-                            this.rx - this.h / 4, this.ry - 3 * this.h / 4);
-                        this.sketch.line(this.rx - this.h / 4, this.ry - 3 * this.h / 4,
-                            this.rx - this.h / 4, this.ry + 3 * this.h / 4);
-                        this.sketch.line(this.rx - this.h / 4, this.ry + 3 * this.h / 4,
-                            this.rx - this.h / 4 + (this.w + this.h / 2) * (this.c - 11 * this.selection_time / 20) / (8 * this.selection_time / 20), this.ry + 3 * this.h / 4);
-
-                    } else if (this.c < this.selection_time) {
-                        this.sketch.line(this.rx + this.w + this.h / 4, this.ry,
-                            this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4);
-                        this.sketch.line(this.rx + this.w + this.h / 4, this.ry - 3 * this.h / 4,
-                            this.rx - this.h / 4, this.ry - 3 * this.h / 4);
-                        this.sketch.line(this.rx - this.h / 4, this.ry - 3 * this.h / 4,
-                            this.rx - this.h / 4, this.ry + 3 * this.h / 4);
-                        this.sketch.line(this.rx - this.h / 4, this.ry + 3 * this.h / 4,
-                            this.rx + this.w + this.h / 4, this.ry + 3 * this.h / 4);
-                        this.sketch.line(this.rx + this.w + this.h / 4, this.ry + 3 * this.h / 4,
-                            this.rx + this.w + this.h / 4, this.ry + 3 * this.h / 4 - 3 * this.h / 4 * (this.c - 19 * this.selection_time / 20) / (this.selection_time / 20));
-                    } else if (this.c == this.selection_time) {
+                    if (this.c == this.selection_time) {
                         // this.parent.unselect();
                         this.selected = !this.selected;
                         chooseAction(this.choice, this.selected, this.type, this.parent.parent.sketch);
@@ -407,72 +421,50 @@ class InfoPanel {
 }
 
 function chooseAction(opt, action, type, sketch) {
-    if(type == "application") {
-        if (action) {
-            sketch.emit("start_application", {
-                application_name: opt
-            });
-        } else {
-            sketch.emit("stop_application", {
-                application_name: opt
-            });
-        }
+    switch (type) {
+        case "application":
+            if (action) {
+                sketch.emit("start_application", {
+                    application_name: opt
+                });
+            } else {
+                sketch.emit("stop_application", {
+                    application_name: opt
+                });
+            }
+            break;
+
+        case "settings":
+            switch (opt){
+                case "Show Face":
+                    if(action){
+                        sketch.face.showing = true;
+                    }
+                    else{
+                        sketch.face.showing = false;
+                    }
+                    break;
+
+                case "Show Body":
+                    if(action){
+                        sketch.body.showing = true;
+                    }
+                    else{
+                        sketch.body.showing = false;
+                    }
+                    break;
+
+                case "Show Hands":
+                    if (action){
+                        sketch.left_hand.showing = true;
+                        sketch.right_hand.showing = true;
+                    }
+                    else {
+                        sketch.left_hand.showing = false;
+                        sketch.right_hand.showing = false;
+                    }
+                    break;
+            }
+            break;
     }
-    // switch (opt){
-    //     case "Show Clock":
-    //         if(action){
-    //             clock.activated = true;
-    //             clock.selfCanvas.show();
-    //         }
-    //         else{
-    //             clock.activated = false;
-    //             clock.selfCanvas.hide();
-    //         }
-    //         break;
-
-    //     case "Show Face":
-    //         if(action){
-    //             face.activated = true;
-    //             face.selfCanvas.show();
-    //         }
-    //         else{
-    //             face.activated = false;
-    //             face.selfCanvas.hide();
-    //         }
-    //         break;
-
-    //     case "Show Pose":
-    //         if(action){
-    //             // pose.activated = true;
-    //             pose.show_body_lines = true;
-    //             pose.selfCanvas.show();
-    //         }
-    //         else{
-    //             // pose.activated = false;
-    //             pose.show_body_lines = false;
-    //             pose.selfCanvas.hide();
-    //         }
-    //         break;
-
-    //     case "Show Hands":
-    //         if (action) hands.selfCanvas.show();
-    //         else hands.selfCanvas.hide();
-    //         break;
-
-    //     case  "Dance":
-    //         if(action){
-    //             dance.activated = false;
-    //             dance.selfCanvas.clear();
-    //             dance.dance.reset();
-    //         }
-    //         else{
-    //             dance.activated = true;
-    //         }
-    //         break;
-
-    //     case  "S.L.R":
-    //         socket.emit("slr", true);
-    //         break;
-
-    // }
 }

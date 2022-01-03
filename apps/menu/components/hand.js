@@ -46,9 +46,10 @@ export class Hand {
         ];
 
         this.hand_pose = [];
-        this.transposed_hand_pose = []; //After projection
+
         this.hand_name = hand_name;
 
+        this.showing = true;
         this.show_hands_points = false;
         this.show_hands_lines = true;
 
@@ -56,14 +57,15 @@ export class Hand {
     }
 
     show(sketch) {
+        if (!this.showing) return;
         sketch.push();
 
         sketch.fill(200);
         if (this.show_hands_points) {
-            for (let i = 0; i < this.transposed_hand_pose.length; i++) {
+            for (let i = 0; i < this.hand_pose.length; i++) {
                 sketch.ellipse(
-                    this.transposed_hand_pose[i][0],
-                    this.transposed_hand_pose[i][1],
+                    this.hand_pose[i][0],
+                    this.hand_pose[i][1],
                     10
                 );
             }
@@ -73,21 +75,20 @@ export class Hand {
         sketch.strokeWeight(4);
         if (
             this.show_hands_lines &&
-            this.transposed_hand_pose.length  == this.keypoints.length &&
-            this.hand_pose.length == this.keypoints.length
+            this.hand_pose.length  == this.keypoints.length
         ){
             this.junctions.forEach(parts => {
                 parts.forEach(pair => {
                     if (
                         this.hand_pose[pair[0]][3] >= 0.4 &&
-                        this.transposed_hand_pose[pair[0]][1] > 0 &&
-                        this.transposed_hand_pose[pair[1]][1] > 0
+                        this.hand_pose[pair[0]][1] > 0 &&
+                        this.hand_pose[pair[1]][1] > 0
                     ) {
                         sketch.line(
-                            this.transposed_hand_pose[pair[0]][0],
-                            this.transposed_hand_pose[pair[0]][1],
-                            this.transposed_hand_pose[pair[1]][0],
-                            this.transposed_hand_pose[pair[1]][1]
+                            this.hand_pose[pair[0]][0],
+                            this.hand_pose[pair[0]][1],
+                            this.hand_pose[pair[1]][0],
+                            this.hand_pose[pair[1]][1]
                         );
                     }
                 })
@@ -108,36 +109,36 @@ export class Hand {
 
     update() {
 
-        if (this.hand_pose == []) {
-            return
-        }
+        // if (this.hand_pose == []) {
+        //     return
+        // }
 
-        for (let i = 0; i < this.hand_pose.length; i++) {
+        // for (let i = 0; i < this.hand_pose.length; i++) {
 
-            if (this.hand_pose[i] != [-1, -1]) {
-                let x = width * (this.hand_pose[i][0] - xoffset) / screenwidth;
-                let y = height * (this.hand_pose[i][1] - yoffset) / screenheight;
+        //     if (this.hand_pose[i] != [-1, -1]) {
+        //         let x = width * (this.hand_pose[i][0] - xoffset) / screenwidth;
+        //         let y = height * (this.hand_pose[i][1] - yoffset) / screenheight;
 
-                if (this.transposed_hand_pose.length > i) {
-                    let newx = width * (this.hand_pose[i][0] - xoffset) / screenwidth;
-                    let newy = height * (this.hand_pose[i][1] - yoffset) / screenheight;
+        //         if (this.transposed_hand_pose.length > i) {
+        //             let newx = width * (this.hand_pose[i][0] - xoffset) / screenwidth;
+        //             let newy = height * (this.hand_pose[i][1] - yoffset) / screenheight;
 
-                    if (newy > 0 || this.transposed_hand_pose[i][1] < 0) {
-                        x = lerp(this.transposed_hand_pose[i][0], newx, 0.8);
-                        y = lerp(this.transposed_hand_pose[i][1], newy, 0.8);
-                    } else { // Assume it's an artifact and slows the update
-                        x = lerp(this.transposed_hand_pose[i][0], newx, 0.01);
-                        y = lerp(this.transposed_hand_pose[i][1], newy, 0.01);
-                    }
-                }
+        //             if (newy > 0 || this.transposed_hand_pose[i][1] < 0) {
+        //                 x = lerp(this.transposed_hand_pose[i][0], newx, 0.8);
+        //                 y = lerp(this.transposed_hand_pose[i][1], newy, 0.8);
+        //             } else { // Assume it's an artifact and slows the update
+        //                 x = lerp(this.transposed_hand_pose[i][0], newx, 0.01);
+        //                 y = lerp(this.transposed_hand_pose[i][1], newy, 0.01);
+        //             }
+        //         }
 
-                this.transposed_hand_pose[i] = [x, y];
+        //         this.transposed_hand_pose[i] = [x, y];
 
-            } else {
-                transposed.push([0, 0])
-            }
+        //     } else {
+        //         this.transposed_hand_pose.push([0, 0])
+        //     }
 
-        };
+        // };
 
     }
 
