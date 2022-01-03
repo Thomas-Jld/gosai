@@ -56,7 +56,7 @@ class AppManager:
                 # Import the python app
                 app = __import__(
                     f"apps.{app_name}.processing", fromlist=[None]
-                ).Application("menu", self.hal, self.server, self)
+                ).Application(app_name, self.hal, self.server, self)
 
                 # Start the required drivers and subscribe to the required events
                 for driver_name in app.requires:
