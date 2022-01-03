@@ -64,7 +64,7 @@ class HardwareAbstractionLayer:
         """
         print(message)
 
-        with open("./core/hal/logs/hal.log", "a+") as log:
+        with open("core/hal/logs/hal.log", "a+") as log:
             log.write(
                 f"{datetime.datetime.now().strftime('%b-%d-%G-%I:%M:%S%p')} : {message}\n"
             )
