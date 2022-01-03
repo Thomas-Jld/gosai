@@ -4,13 +4,11 @@ import os
 import sys
 import time
 
-CURR_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(CURR_DIR)
-
-import utils.hands_signs as hs
-import utils.pose_estimation as pe
-from ..driver import BaseDriver
-from utils.reflection import project
+import core.hal.drivers.pose.utils.hands_signs as hs
+import core.hal.drivers.pose.utils.pose_estimation as pe
+import core.hal.drivers.pose.utils.mirror as mi
+from core.hal.drivers.driver import BaseDriver
+from core.hal.drivers.pose.utils.reflection import project
 
 class Driver(BaseDriver):
     """
@@ -33,6 +31,9 @@ class Driver(BaseDriver):
 
         self.projected_data = {}
         self.registered["projected_data"] = []
+
+        self.mirrored_data = {}
+        self.registered["mirrored_data"] = []
 
         self.debug_time = False
         self.debug_data = False
@@ -126,10 +127,13 @@ class Driver(BaseDriver):
 
                         flag_2 = time.time()
 
+                        self.mirrored_data = mi.mirror_data(self.projected_data, self.mirrored_data)
+                        self.notify("mirrored_data")
+
                         if self.debug_time:
                             print(f"Inference: {(flag_1 - start_t)*1000} ms")
                             print(f"Projection: {(flag_2 - flag_1)*1000} ms")
-                            print(f"Adding to queue: {(time.time() - flag_2)*1000} ms")
+                            print(f"Mirrored: {(time.time() - flag_2)*1000} ms")
 
                 end_t = time.time()
 
