@@ -73,5 +73,5 @@ class BaseDriver(threading.Thread):
 
         print(f"{self.name}: {message}")
 
-        with open(f"./core/hal/logs/{self.name}.log", "a+") as log:
+        with open(f"core/hal/logs/{self.name}.log", "a+") as log:
             log.write(f"{datetime.datetime.now().strftime('%b-%d-%G-%I:%M:%S%p')} : {message}\n")
