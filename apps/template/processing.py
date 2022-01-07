@@ -16,5 +16,5 @@ class Application(BaseApplication):
 
         # * Example
         # if self.started and source == "a_driver" and event == "some_data":
-        #     self.data = self.hal.drivers["a_driver"].some_data
+        #     self.data = self.hal.get_driver_event_data("a_driver", "some_data")
         #     self.server.send_data(self.name, self.data)

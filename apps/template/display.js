@@ -15,6 +15,10 @@ export const template = new p5(( sketch ) => {
         sketch.resizeCanvas(windowWidth, windowHeight);
     }
 
+    sketch.resume = () => {};
+
+    sketch.pause = () => {};
+
     sketch.update = () => {}
 
     sketch.show = () => {
