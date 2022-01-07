@@ -1,8 +1,11 @@
+.PHONY: build
+
 include .env
 
 USER=thomasj27
-REPO=gosai-${PLATFORM}-${DEVICE}-${VERSION}
+REPO=gosai
 IMNAME = ${USER}/${REPO}
+TAG = ${PLATFORM}-${DEVICE}-${VERSION}
 
 boot:
 	python3 init.py
@@ -11,7 +14,10 @@ install:
 	pip3 install -r requirements.txt
 
 build:
-	nvidia-docker build -t $(IMNAME) -f build/${DEVICE}/Dockerfile .
+	nvidia-docker build -t $(IMNAME):$(TAG) -f build/${DEVICE}/Dockerfile .
+
+push:
+	nvidia-docker push $(IMNAME):$(TAG)
 
 launch:
 	-sudo xhost +local:root
