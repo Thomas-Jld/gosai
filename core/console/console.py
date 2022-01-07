@@ -1,3 +1,4 @@
+import os
 import threading
 import time
 
@@ -15,8 +16,8 @@ class Console(threading.Thread):
         while 1:
             print("")
             command = input(">>: ")
-            execute = command.split(" ")[0]
-            arguments = command.split(" ")[1:]
+            execute = command.split()[0]
+            arguments = command.split()[1:]
 
             if execute == "exit":
                 exit()
@@ -25,16 +26,12 @@ class Console(threading.Thread):
                 print("exit - exit the application")
                 print("help - show this help")
                 print("ls - list all available drivers")
+                print("log $level - set the log level")
                 print("restart - restart an app")
-                print("start - start an app")
-                print("stop - stop an app")
-                print("status - show the status of an app")
+                print("start $app_name - start an app")
+                print("stop $app_name - stop an app")
+                #print("status - show the status of an app")
                 print("ps - displays informations of the drivers")
-
-            elif execute == "list":
-                print("Available applications:")
-                for app_name in self.app_manager.list_applications():
-                    print(app_name)
 
             elif execute == "start":
                 if len(arguments) == 0:
@@ -60,13 +57,37 @@ class Console(threading.Thread):
 
             elif execute == "ls":
                 if len(arguments) == 1 and arguments[0] == "drivers":
+                    print("Available drivers:")
                     print("\n".join(self.hal.get_drivers()))
 
                 if len(arguments) == 2 and arguments[0] == "drivers" and arguments[1] == "started":
+                    print("Started drivers:")
                     print("\n".join(self.hal.get_started_drivers()))
 
                 if len(arguments) == 2 and arguments[0] == "drivers" and arguments[1] == "stopped":
+                    print("Stopped drivers:")
                     print("\n".join(self.hal.get_stopped_drivers()))
+
+                if len(arguments) == 1 and arguments[0] == "applications":
+                    print("Available applications:")
+                    print("\n".join(self.app_manager.list_applications()))
+
+                if len(arguments) == 2 and arguments[0] == "applications" and arguments[1] == "started":
+                    print("Started applications:")
+                    print("\n".join(self.app_manager.list_started_applications()))
+
+                if len(arguments) == 2 and arguments[0] == "applications" and arguments[1] == "stopped":
+                    print("Stopped applications:")
+                    print("\n".join(self.app_manager.list_stopped_applications()))
+
+            elif execute == "log":
+                if len(arguments) == 1:
+                    try:
+                        os.environ["LOG_LEVEL"] = str(int(arguments[0]))
+                    except:
+                        print("Invalid log level")
+                else:
+                    print("Please specify a log level")
 
             else:
                 print("Unknown command")
