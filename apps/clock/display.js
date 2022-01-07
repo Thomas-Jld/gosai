@@ -27,6 +27,10 @@ export const clock = new p5((sketch) => {
         sketch.activated = true;
     };
 
+    sketch.resume = () => {};
+
+    sketch.pause = () => {};
+
     sketch.update = () => {};
 
     sketch.show = () => {

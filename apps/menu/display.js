@@ -56,6 +56,10 @@ export const menu = new p5(( sketch ) => {
         sketch.activated = true
     }
 
+    sketch.resume = () => {};
+
+    sketch.pause = () => {};
+
     sketch.windowResized = () => {
         sketch.resizeCanvas(windowWidth, windowHeight);
     }

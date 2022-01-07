@@ -12,6 +12,7 @@ socket.on("start_application", async (data) => {
     if(Object.keys(modules).includes(application_name)) {
         modules[application_name].activated = true;
         modules[application_name].selfCanvas.show();
+        modules[application_name].resume();
     } else {
         const module = await import("/apps/" + application_name  + "/display.js")
 
@@ -33,4 +34,5 @@ socket.on("stop_application", async (data) => {
 
     modules[application_name].activated = false;
     modules[application_name].selfCanvas.hide();
+    modules[application_name].pause();
 });
