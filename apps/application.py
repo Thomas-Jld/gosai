@@ -29,6 +29,8 @@ class BaseApplication(threading.Thread):
             self.hal.log(f"{self.name}: not subscrbed to {event} from {source}")
             return
 
+        if not self.started:
+            return
         # Write your code here (what to do when the data is recieved)
 
 
