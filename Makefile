@@ -19,6 +19,9 @@ build:
 push:
 	nvidia-docker push $(IMNAME):$(TAG)
 
+pull:
+	nvidia-docker pull $(IMNAME):$(TAG)
+
 launch:
 	-sudo xhost +local:root
 ifeq (${DEVICE}, gpu)
