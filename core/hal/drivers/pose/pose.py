@@ -1,14 +1,12 @@
 # Pose estimation Driver
 
-import os
-import sys
 import time
 
 import core.hal.drivers.pose.utils.hands_signs as hs
 import core.hal.drivers.pose.utils.pose_estimation as pe
-import core.hal.drivers.pose.utils.mirror as mi
 from core.hal.drivers.driver import BaseDriver
 from core.hal.drivers.pose.utils.reflection import project
+
 
 class Driver(BaseDriver):
     """
@@ -21,127 +19,113 @@ class Driver(BaseDriver):
 
         self.holistic = pe.init()
         self.sign_provider = hs.init()
-        self.paused = False
 
+        self.register_to_driver("video", "color")
+        self.register_to_driver("video", "depth")
 
-        self.requires.append("video")
-
-        self.raw_data = {}
-        self.registered["raw_data"] = []
-
-        self.projected_data = {}
-        self.registered["projected_data"] = []
-
-        self.mirrored_data = {}
-        self.registered["mirrored_data"] = []
+        self.create_event("raw_data")
+        self.create_event("projected_data")
 
         self.debug_time = False
         self.debug_data = False
         self.fps = max_fps
         self.window = 0.7
 
-    def run(self):
-        super().run()
-        # * Home made hand signs recognition : https://github.com/Thomas-Jld/gesture-recognition
+    def loop(self):
+        """Main loop"""
+        start_t = time.time()
 
-        while 1:
-            if not self.paused:
-                start_t = time.time()
+        color = self.parent.get_driver_event_data("video", "color")
+        depth = self.parent.get_driver_event_data("video", "depth")
 
-                if (
-                    self.parent.drivers["video"].color is not None
-                    and self.parent.drivers["video"].depth is not None
-                ):
-                    self.raw_data = pe.find_all_poses(
-                        self.holistic,
-                        self.parent.drivers["video"].color,
-                        self.window
+        if color is not None and depth is not None:
+            raw_data = pe.find_all_poses(self.holistic, color, self.window)
+
+            self.set_event_data("raw_data", raw_data)
+
+            if self.debug_data:
+                self.log(raw_data)
+
+            if bool(raw_data["body_pose"]):
+                flag_1 = time.time()
+
+                eyes = raw_data["body_pose"][0][0:2]
+
+                body = project(
+                    points=raw_data["body_pose"],
+                    eyes_position=eyes,
+                    video_provider=self.parent.drivers["video"].source,
+                    depth_frame=depth,
+                    depth_radius=2,
+                )
+                projected_data = {"body_pose": body}
+
+                projected_data["right_hand_pose"] = project(
+                    points=raw_data["right_hand_pose"],
+                    eyes_position=eyes,
+                    video_provider=self.parent.drivers["video"].source,
+                    depth_frame=depth,
+                    depth_radius=2,
+                    ref=body[15],
+                )
+
+                if len(raw_data["right_hand_pose"]) > 0:
+                    raw_data["right_hand_sign"] = hs.find_gesture(
+                        self.sign_provider,
+                        hs.normalize_data(
+                            raw_data["right_hand_pose"],
+                            self.parent.drivers["video"].source.width,
+                            self.parent.drivers["video"].source.height,
+                        ),
                     )
 
-                    self.notify("raw_data")
-                    if self.debug_data:
-                        print(self.raw_data)
+                projected_data["left_hand_pose"] = project(
+                    points=raw_data["left_hand_pose"],
+                    eyes_position=eyes,
+                    video_provider=self.parent.drivers["video"].source,
+                    depth_frame=depth,
+                    depth_radius=2,
+                    ref=body[16],
+                )
 
-                    if bool(self.raw_data["body_pose"]):
-                        flag_1 = time.time()
+                if len(raw_data["left_hand_pose"]) > 0:
+                    projected_data["left_hand_sign"] = hs.find_gesture(
+                        self.sign_provider,
+                        hs.normalize_data(
+                            raw_data["left_hand_pose"],
+                            self.parent.drivers["video"].source.width,
+                            self.parent.drivers["video"].source.height,
+                        ),
+                    )
 
-                        eyes = self.raw_data["body_pose"][0][0:2]
+                projected_data["face_mesh"] = project(
+                    points=raw_data["face_mesh"],
+                    eyes_position=eyes,
+                    video_provider=self.parent.drivers["video"].source,
+                    depth_frame=depth,
+                    depth_radius=2,
+                    ref=body[2],
+                )
 
-                        body = project(
-                            points=self.raw_data["body_pose"],
-                            eyes_position=eyes,
-                            video_provider=self.parent.drivers["video"].source,
-                            depth_frame=self.parent.drivers["video"].depth,
-                            depth_radius=2,
-                        )
-                        self.projected_data["body_pose"] = body
+                self.set_event_data("projected_data", projected_data)
+                if self.debug_data:
+                    self.log(projected_data)
 
-                        self.projected_data["right_hand_pose"] = project(
-                            points=self.raw_data["right_hand_pose"],
-                            eyes_position=eyes,
-                            video_provider=self.parent.drivers["video"].source,
-                            depth_frame=self.parent.drivers["video"].depth,
-                            depth_radius=2,
-                            ref=body[15],
-                        )
-
-                        if len(self.raw_data["right_hand_pose"]) > 0:
-                            self.raw_data["right_hand_sign"] = hs.find_gesture(
-                                self.sign_provider,
-                                hs.normalize_data(
-                                    self.raw_data["right_hand_pose"],
-                                    self.parent.drivers["video"].source.width,
-                                    self.parent.drivers["video"].source.height,
-                                ),
-                            )
-
-                        self.projected_data["left_hand_pose"] = project(
-                            points=self.raw_data["left_hand_pose"],
-                            eyes_position=eyes,
-                            video_provider=self.parent.drivers["video"].source,
-                            depth_frame=self.parent.drivers["video"].depth,
-                            depth_radius=2,
-                            ref=body[16],
-                        )
-
-                        if len(self.raw_data["left_hand_pose"]) > 0:
-                            self.projected_data["left_hand_sign"] = hs.find_gesture(
-                                self.sign_provider,
-                                hs.normalize_data(
-                                    self.raw_data["left_hand_pose"],
-                                    self.parent.drivers["video"].source.width,
-                                    self.parent.drivers["video"].source.height,
-                                ),
-                            )
-
-                        self.projected_data["face_mesh"] = project(
-                            points=self.raw_data["face_mesh"],
-                            eyes_position=eyes,
-                            video_provider=self.parent.drivers["video"].source,
-                            depth_frame=self.parent.drivers["video"].depth,
-                            depth_radius=2,
-                            ref=body[2],
-                        )
-
-                        self.notify("projected_data")
-
-                        flag_2 = time.time()
-
-                        self.mirrored_data = mi.mirror_data(self.projected_data, self.mirrored_data)
-                        self.notify("mirrored_data")
-
-                        if self.debug_time:
-                            print(f"Inference: {(flag_1 - start_t)*1000} ms")
-                            print(f"Projection: {(flag_2 - flag_1)*1000} ms")
-                            print(f"Mirrored: {(time.time() - flag_2)*1000} ms")
-
-                end_t = time.time()
+                flag_2 = time.time()
 
                 if self.debug_time:
-                    print(f"Total inference time: {(end_t - start_t)*1000}ms")
-                    print(f"FPS: {int(1/(end_t - start_t))}")
+                    self.log(f"Inference: {(flag_1 - start_t)*1000} ms")
+                    self.log(f"Projection: {(flag_2 - flag_1)*1000} ms")
 
-                dt = max(1 / self.fps - (end_t - start_t), 0.0001)
-                time.sleep(dt)
-            else:
-                time.sleep(5)
+        else:
+            self.log("No color or depth data", 1)
+
+        end_t = time.time()
+
+        if self.debug_time:
+            self.log(f"Total time: {(end_t - start_t)*1000}ms")
+            self.log(f"FPS: {int(1/(end_t - start_t))}")
+
+        dt = max((1 / self.fps) - (end_t - start_t), 0.0001)
+
+        time.sleep(dt)

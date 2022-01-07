@@ -7,10 +7,7 @@ import sys
 import pyaudio
 import speech_recognition as sr
 
-CURR_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(CURR_DIR)
-
-from ..driver import BaseDriver
+from core.hal.drivers.driver import BaseDriver
 
 
 class Driver(BaseDriver):
@@ -33,8 +30,15 @@ class Driver(BaseDriver):
             pass
 
         c_error_handler = ERROR_HANDLER_FUNC(py_error_handler)
-        asound = ctypes.cdll.LoadLibrary('libasound.so')
-        asound.snd_lib_error_set_handler(c_error_handler)
+        try:
+            asound = ctypes.cdll.LoadLibrary('libasound.so')
+            asound.snd_lib_error_set_handler(c_error_handler)
+        except:
+            try:
+                asound = ctypes.cdll.LoadLibrary('libasound.so.2')
+                asound.snd_lib_error_set_handler(c_error_handler)
+            except:
+                pass
         # ----------------------------------------------
 
 

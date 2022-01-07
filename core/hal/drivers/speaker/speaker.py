@@ -8,10 +8,7 @@ from time import sleep
 import pyglet
 from gtts import gTTS
 
-CURR_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(CURR_DIR)
-
-from ..driver import BaseDriver
+from core.hal.drivers.driver import BaseDriver
 
 
 class Driver(BaseDriver):

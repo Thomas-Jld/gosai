@@ -4,11 +4,9 @@ import os
 import sys
 import time
 
-CURR_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(CURR_DIR)
 
-from cameras import IntelCamera, StandardCamera
-from ..driver import BaseDriver
+from core.hal.drivers.video.cameras import IntelCamera, StandardCamera
+from core.hal.drivers.driver import BaseDriver
 
 
 class Driver(BaseDriver):
@@ -27,24 +25,20 @@ class Driver(BaseDriver):
         self.source = source
         self.fps = fps
 
-        self.color = None
-        self.registered["color"] = []  # No apps are subscribed to RGB frame initialy
+        self.create_event("color")
+        self.create_event("depth")
 
-        self.depth = None
-        self.registered["depth"] = []
 
-    def run(self):
-        super().run()
+    def loop(self):
+        color, depth = self.source.next_frame()
 
-        while 1:
-            self.color, self.depth = self.source.next_frame()
+        if color is not None:
+            self.set_event_data("color", color)
+        if depth is not None:
+            self.set_event_data("depth", depth)
 
-            if self.color is not None:
-                self.notify("color")
-            if self.depth is not None:
-                self.notify("depth")
+        time.sleep(1 / self.fps)  # Runs faster to be sure to get the current frame
 
-            time.sleep(1 / self.fps)  # Runs faster to be sure to get the current frame
 
     def execute(self, command, arguments=""):
         super().execute(command, arguments)
@@ -55,8 +49,8 @@ class Driver(BaseDriver):
             elif arguments == "depth":
                 return self.depth
             else:
-                self.log(f"Unknown argument: {arguments}")
+                self.log(f"Unknown argument: {arguments}", 3)
                 return -1
         else:
-            self.log(f"Unknown command: {command}")
+            self.log(f"Unknown command: {command}", 3)
             return -1
