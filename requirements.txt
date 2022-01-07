@@ -1,8 +1,0 @@
-gTTS
-pyglet
-Flask-Cors==3.0.10
-Flask-SocketIO==5.1.1
-pyaudio
-SpeechRecognition==3.8.1
-pyrealsense2
-eventlet
