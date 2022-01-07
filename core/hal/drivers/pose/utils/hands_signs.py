@@ -4,8 +4,6 @@ from typing import List
 import numpy as np
 import onnxruntime
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-model_path = os.path.join(dir_path, 'models/handsign.onnx')
 
 SIGNS = {
     "0": "OK",
@@ -19,19 +17,21 @@ SIGNS = {
     "8": "THUMB_DOWN",
     "9": "INDEX",
     "10": "MIDDLE",
-    "11": "LITTLE"
+    "11": "LITTLE",
 }
 
 
 def onehot(index: int, size: int = 16) -> List[int]:
-    """ Creates a onehot """
+    """Creates a onehot"""
     one_hot = [0 for i in range(size)]
     one_hot[index] = 1
     return one_hot
 
 
 def init():
-    """ Import the model """
+    """Import the model"""
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    model_path = os.path.join(dir_path, "models/handsign.onnx")
     model = onnxruntime.InferenceSession(model_path)
     return model
     # except:
@@ -40,7 +40,7 @@ def init():
 
 
 def find_gesture(model, data: List[List]) -> List:
-    """ Evaluate the data using the model """
+    """Evaluate the data using the model"""
     ort_inputs = {model.get_inputs()[0].name: np.array(data, dtype=np.float32)}
     out = model.run(None, ort_inputs)[-1]
     return [SIGNS[str(np.argmax(out))], float(np.max(out))]
