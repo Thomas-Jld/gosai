@@ -97,7 +97,7 @@ export class Body {
             this.junctions.forEach(parts => {
                 parts.forEach(pair => {
                     if (
-                        this.body_pose[pair[0]][3] >= 0.8 &&
+                        this.body_pose[pair[0]][3] >= 0.6 &&
                         this.body_pose[pair[0]][1] > 0 &&
                         this.body_pose[pair[1]][1] > 0 &&
                         (this.show_head || (pair[1] > 10 && pair[0] > 10)) &&
