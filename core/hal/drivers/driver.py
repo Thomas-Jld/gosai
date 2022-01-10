@@ -1,11 +1,16 @@
 # Base driver template
 
 import datetime
+import json
 import os
 # from queue import Queue
 import threading
 import time
-from multiprocessing import Process, Value, Queue, Manager
+# from io import BytesIO
+from multiprocessing import Manager, Process, Queue, Value
+
+import numpy as np
+# import redis
 
 
 class BaseDriver(threading.Thread):
@@ -22,6 +27,7 @@ class BaseDriver(threading.Thread):
         self.registered = {"all": []}
         self.requires = {}
         self.data = {} # Manager().dict()
+        # self.db = redis.Redis(host='localhost', port=6379, db=0)
 
 
     def execute(self, command, arguments):
@@ -38,9 +44,9 @@ class BaseDriver(threading.Thread):
 
     def pre_run(self):
         """
-        Runs before the driver is started
+        Runs once at the start of the driver
         """
-        pass
+        # self.db = redis.Redis(host='localhost', port=6379, db=0)
 
     def run(self):
         """Runs when the thread is started"""
@@ -73,7 +79,6 @@ class BaseDriver(threading.Thread):
                 self.parent.register_to_driver(
                     driver_name, self, event
                 )
-
         self.paused.value = 0
 
 
@@ -100,6 +105,7 @@ class BaseDriver(threading.Thread):
         self.log(f"Creating event '{event}'", 2)
         self.registered[event] = []
         self.data[event] = None #Queue()
+        # self.db.set(f"{self.name}_{event}", "")
         return True
 
 
@@ -116,6 +122,8 @@ class BaseDriver(threading.Thread):
         # self.data[event].put(data)
         # self.data[event].task_done()
         self.data[event] = data
+
+        # self.db.set(f"{self.name}_{event}", data)
         self.notify(event)
         return True
 
@@ -132,6 +140,8 @@ class BaseDriver(threading.Thread):
         # self.data[event].task_done()
 
         data = self.data[event]
+
+        # data = self.db.get(f"{self.name}_{event}")
         return data
 
 
@@ -214,3 +224,24 @@ class BaseDriver(threading.Thread):
 
     def __str__(self):
         return str(self.name)
+
+    # def array_to_bytes(self, x: np.ndarray) -> bytes:
+    #     np_bytes = BytesIO()
+    #     np.save(np_bytes, x, allow_pickle=True)
+    #     return np_bytes.getvalue()
+
+    # def bytes_to_array(self, b: bytes) -> np.ndarray:
+    #     try:
+    #         np_bytes = BytesIO(b)
+    #         return np.load(np_bytes, allow_pickle=True)
+    #     except:
+    #         return None
+
+    # def dict_to_bytes(self, x: dict) -> bytes:
+    #     return json.dumps(x)
+
+    # def bytes_to_dict(self, b: bytes) -> dict:
+    #     try:
+    #         return json.loads(b)
+    #     except:
+    #         return None

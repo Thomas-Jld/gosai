@@ -4,7 +4,6 @@ import os
 import sys
 import time
 
-
 from core.hal.drivers.video.cameras import IntelCamera, StandardCamera
 from core.hal.drivers.driver import BaseDriver
 
@@ -29,9 +28,6 @@ class Driver(BaseDriver):
         self.create_event("color")
         self.create_event("depth")
         self.create_event("source")
-
-
-    def pre_run(self):
         self.source = IntelCamera(640, 480)
         source_data = {
             "color_intrinsics": {
@@ -57,8 +53,11 @@ class Driver(BaseDriver):
             "width": self.source.width,
             "height": self.source.height
         }
-
         self.set_event_data("source", source_data)
+
+
+    def pre_run(self):
+        pass
 
 
     def loop(self):
@@ -67,8 +66,10 @@ class Driver(BaseDriver):
 
         if color is not None:
             self.set_event_data("color", color)
+            # self.set_event_data("color", self.array_to_bytes(color))
         if depth is not None:
             self.set_event_data("depth", depth)
+            # self.set_event_data("depth", self.array_to_bytes(depth))
 
         time.sleep(1 / self.fps)  # Runs faster to be sure to get the current frame
 

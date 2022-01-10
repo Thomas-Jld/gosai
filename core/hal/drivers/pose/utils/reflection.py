@@ -70,6 +70,7 @@ def project(
     """Projects every keypoint in world coordinates based on the user's point of view"""
     global color_intrinsics, depth_intrinsics
 
+    # video_provider = {'color_intrinsics': {'width': 640, 'height': 480, 'ppx': 327.2680358886719, 'ppy': 243.02333068847656, 'fx': 604.3840942382812, 'fy': 604.1060180664062, 'model': rs.pyrealsense2.distortion.inverse_brown_conrady, 'coeffs': [0.0, 0.0, 0.0, 0.0, 0.0]}, 'depth_intrinsics': {'width': 640, 'height': 480, 'ppx': 321.746826171875, 'ppy': 234.80975341796875, 'fx': 380.9853515625, 'fy': 380.9853515625, 'model': rs.pyrealsense2.distortion.inverse_brown_conrady, 'coeffs': [0.0, 0.0, 0.0, 0.0, 0.0]}, 'width': 640, 'height': 480}
     if color_intrinsics is None:
         color_intrinsics = create_intrinsics(video_provider["color_intrinsics"])
 

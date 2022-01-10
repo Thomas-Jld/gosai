@@ -1,6 +1,9 @@
 # Pose estimation Driver
 
+import json
 import time
+
+import numpy as np
 
 import core.hal.drivers.pose.utils.hands_signs as hs
 import core.hal.drivers.pose.utils.pose_estimation as pe
@@ -35,6 +38,7 @@ class Driver(BaseDriver):
 
     def pre_run(self):
         time.sleep(0.5)
+        # self.source =None
         self.source = self.parent.get_driver_event_data("video", "source")
         # print(self.source)
 
@@ -44,6 +48,8 @@ class Driver(BaseDriver):
 
         color = self.parent.get_driver_event_data("video", "color")
         depth = self.parent.get_driver_event_data("video", "depth")
+        # color = self.bytes_to_array(self.parent.get_driver_event_data("video", "color"))
+        # depth = self.bytes_to_array(self.parent.get_driver_event_data("video", "depth"))
 
 
         if color is not None and depth is not None:
@@ -52,6 +58,7 @@ class Driver(BaseDriver):
             # print(f"get_data: {1000*(time.time() - t01)}")
 
             self.set_event_data("raw_data", raw_data)
+            # self.set_event_data("raw_data", self.dict_to_bytes(raw_data))
 
             if self.debug_data:
                 self.log(raw_data)
@@ -118,6 +125,7 @@ class Driver(BaseDriver):
                 )
 
                 self.set_event_data("projected_data", projected_data)
+                # self.set_event_data("projected_data", self.dict_to_bytes(projected_data))
                 if self.debug_data:
                     self.log(projected_data)
 
