@@ -56,7 +56,7 @@ class HardwareAbstractionLayer:
 
         driver = self.drivers[driver_name]
 
-        if not driver.started or driver.paused:
+        if not driver.started.value or driver.paused.value:
             for req_driver_name in driver.requires:
                 if req_driver_name not in self.available_drivers:
                     self.log(
@@ -66,9 +66,9 @@ class HardwareAbstractionLayer:
                     )
                     return False
                 self.start_driver(req_driver_name)
-            if not driver.started:
-                driver.start()
-            if driver.paused:
+            if not driver.started.value:
+                driver.launch()
+            if driver.paused.value:
                 driver.resume()
 
         return True
@@ -113,7 +113,7 @@ class HardwareAbstractionLayer:
         """Returns a list of drivers that are started"""
         started_drivers = []
         for driver_name, driver in self.drivers.items():
-            if driver.started and not driver.paused:
+            if driver.started.value and not driver.paused.value:
                 started_drivers.append(driver_name)
         return started_drivers
 
@@ -121,7 +121,7 @@ class HardwareAbstractionLayer:
         """Returns a list of drivers that are stopped"""
         stopped_drivers = []
         for driver_name, driver in self.drivers.items():
-            if not driver.started or driver.paused:
+            if not driver.started.value or driver.paused.value:
                 stopped_drivers.append(driver_name)
         return stopped_drivers
 

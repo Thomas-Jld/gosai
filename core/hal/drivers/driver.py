@@ -2,24 +2,26 @@
 
 import datetime
 import os
-from queue import Queue
+# from queue import Queue
 import threading
 import time
+from multiprocessing import Process, Value, Queue, Manager
 
 
 class BaseDriver(threading.Thread):
     """Base class for all drivers"""
 
     def __init__(self, name, parent):
-        threading.Thread.__init__(self)
+        super().__init__()
+        # threading.Thread.__init__(self)
         self.name = name
         self.parent = parent
         self.commands = {}
-        self.started = False
-        self.paused = False
+        self.started = Value("i", 0) #False
+        self.paused = Value("i", 0)  #False
         self.registered = {"all": []}
         self.requires = {}
-        self.data = {}
+        self.data = {} # Manager().dict()
 
 
     def execute(self, command, arguments):
@@ -27,16 +29,28 @@ class BaseDriver(threading.Thread):
 
         self.log(f"Executing command '{command}' with arguments '{arguments}'", 2)
 
+    def launch(self):
+        """
+        Sets the started flag and starts the driver
+        """
+        self.started.value = 1
+        self.start()
+
+    def pre_run(self):
+        """
+        Runs before the driver is started
+        """
+        pass
 
     def run(self):
         """Runs when the thread is started"""
 
+        self.pre_run()
         # Starts the required drivers
         self.log("Driver running", 2)
-        self.started = True
 
         while 1:
-            if not self.paused:
+            if not self.paused.value:
                 self.loop()
             else:
                 time.sleep(0.5)
@@ -60,7 +74,7 @@ class BaseDriver(threading.Thread):
                     driver_name, self, event
                 )
 
-        self.paused = False
+        self.paused.value = 0
 
 
     def stop(self):
@@ -74,7 +88,7 @@ class BaseDriver(threading.Thread):
                     driver_name, self, event
                 )
 
-        self.paused = True
+        self.paused.value = 1
 
 
     def create_event(self, event) -> bool:
@@ -85,7 +99,7 @@ class BaseDriver(threading.Thread):
 
         self.log(f"Creating event '{event}'", 2)
         self.registered[event] = []
-        self.data[event] = Queue()
+        self.data[event] = None #Queue()
         return True
 
 
@@ -96,11 +110,12 @@ class BaseDriver(threading.Thread):
             self.log(f"Tried to add data for an unknown event '{event}'", 3)
             return False
 
-        while not self.data[event].empty():
-            self.data[event].get()
+        # while not self.data[event].empty():
+        #     self.data[event].get()
 
-        self.data[event].put(data)
-        self.data[event].task_done()
+        # self.data[event].put(data)
+        # self.data[event].task_done()
+        self.data[event] = data
         self.notify(event)
         return True
 
@@ -112,9 +127,11 @@ class BaseDriver(threading.Thread):
             self.log(f"Tried to get data for an unknown event '{event}'", 3)
             return None
 
-        data = self.data[event].get()
-        self.data[event].put(data)
-        self.data[event].task_done()
+        # data = self.data[event].get()
+        # self.data[event].put(data)
+        # self.data[event].task_done()
+
+        data = self.data[event]
         return data
 
 
@@ -157,6 +174,7 @@ class BaseDriver(threading.Thread):
 
         return True
 
+
     def notify(self, event) -> bool:
         """Notify every registered app of an event"""
 
@@ -165,6 +183,7 @@ class BaseDriver(threading.Thread):
             return False
 
         for app in self.registered[event]:
+            # app.listener(self.name, event)
             threading.Thread(target=app.listener, args=(self.name, event)).start()
 
         return True
