@@ -31,6 +31,13 @@ class Driver(BaseDriver):
         self.fps = max_fps
         self.window = 0.7
 
+
+
+    def pre_run(self):
+        time.sleep(0.5)
+        self.source = self.parent.get_driver_event_data("video", "source")
+        # print(self.source)
+
     def loop(self):
         """Main loop"""
         start_t = time.time()
@@ -38,8 +45,11 @@ class Driver(BaseDriver):
         color = self.parent.get_driver_event_data("video", "color")
         depth = self.parent.get_driver_event_data("video", "depth")
 
+
         if color is not None and depth is not None:
+            # t01 = time.time()
             raw_data = pe.find_all_poses(self.holistic, color, self.window)
+            # print(f"get_data: {1000*(time.time() - t01)}")
 
             self.set_event_data("raw_data", raw_data)
 
@@ -54,7 +64,7 @@ class Driver(BaseDriver):
                 body = project(
                     points=raw_data["body_pose"],
                     eyes_position=eyes,
-                    video_provider=self.parent.drivers["video"].source,
+                    video_provider=self.source,
                     depth_frame=depth,
                     depth_radius=2,
                 )
@@ -63,7 +73,7 @@ class Driver(BaseDriver):
                 projected_data["right_hand_pose"] = project(
                     points=raw_data["right_hand_pose"],
                     eyes_position=eyes,
-                    video_provider=self.parent.drivers["video"].source,
+                    video_provider=self.source,
                     depth_frame=depth,
                     depth_radius=2,
                     ref=body[15],
@@ -74,15 +84,15 @@ class Driver(BaseDriver):
                         self.sign_provider,
                         hs.normalize_data(
                             raw_data["right_hand_pose"],
-                            self.parent.drivers["video"].source.width,
-                            self.parent.drivers["video"].source.height,
+                            self.source["width"],
+                            self.source["height"]
                         ),
                     )
 
                 projected_data["left_hand_pose"] = project(
                     points=raw_data["left_hand_pose"],
                     eyes_position=eyes,
-                    video_provider=self.parent.drivers["video"].source,
+                    video_provider=self.source,
                     depth_frame=depth,
                     depth_radius=2,
                     ref=body[16],
@@ -93,15 +103,15 @@ class Driver(BaseDriver):
                         self.sign_provider,
                         hs.normalize_data(
                             raw_data["left_hand_pose"],
-                            self.parent.drivers["video"].source.width,
-                            self.parent.drivers["video"].source.height,
+                            self.source["width"],
+                            self.source["height"]
                         ),
                     )
 
                 projected_data["face_mesh"] = project(
                     points=raw_data["face_mesh"],
                     eyes_position=eyes,
-                    video_provider=self.parent.drivers["video"].source,
+                    video_provider=self.source,
                     depth_frame=depth,
                     depth_radius=2,
                     ref=body[2],
