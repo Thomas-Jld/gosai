@@ -80,7 +80,7 @@ export class Hand {
             this.junctions.forEach(parts => {
                 parts.forEach(pair => {
                     if (
-                        this.hand_pose[pair[0]][3] >= 0.4 &&
+                        this.hand_pose[pair[0]][3] >= 0.2 &&
                         this.hand_pose[pair[0]][1] > 0 &&
                         this.hand_pose[pair[1]][1] > 0
                     ) {
