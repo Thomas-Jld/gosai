@@ -126,9 +126,11 @@ class Bubble {
             0,
             -this.d * 3 / 4,
             this.d * 3 / 4,
-            this.d * 3 / 2,
-            -this.d * 3 / 2,
-            2 * this.d
+            this.d * 6 / 4,
+            this.d * 9 / 4,
+            this.d * 12 / 4,
+            this.d * 15 / 4,
+            this.d * 18 / 4,
         ];
 
         this.bars = [];
@@ -195,7 +197,7 @@ class Bubble {
                 if (!this.selected && dist(this.rx,
                         this.ry, cursor[0], cursor[1]) < this.r) {
 
-                    this.c += 1;
+                    this.c += 0.8;
 
                     if (this.c >= 40) {
                         this.parent.unselect();
@@ -244,7 +246,7 @@ class SelectBar {
 
         this.per = 0;
         this.mul = 0.92;
-        this.selection_time = 40;
+        this.selection_time = 60;
 
         this.sketch;
         this.show_selection = false;
