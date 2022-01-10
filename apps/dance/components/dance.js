@@ -123,7 +123,7 @@ export class DanceLesson {
             this.reset();
             return;
         }
-        if (this.body_pose.length <= 0 || this.body_pose == undefined) return;
+        if (this.body_pose == undefined || this.body_pose.length <= 0) return;
         if (!this.loaded) return;
 
         if (!this.init) {
