@@ -8,6 +8,7 @@ class StandardCamera:
     """
 
     def __init__(self, width, height, id: int = 0):
+        self.name = "basic"
         self.width = width
         self.height = height
         self.cap = cv.VideoCapture(id)
@@ -27,6 +28,7 @@ class IntelCamera:
     """
 
     def __init__(self, width, height):
+        self.name = "d435"
         import pyrealsense2 as rs
 
         self.pipe = rs.pipeline()
@@ -50,7 +52,8 @@ class IntelCamera:
         clipping_distance_in_meters = 3
         clipping_distance = clipping_distance_in_meters / self.depth_scale
 
-        self.depth_intrinsics, self.color_intrinsics = None, None
+        self.depth_intrinsics = profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
+        self.color_intrinsics = profile.get_stream(rs.stream.color).as_video_stream_profile().get_intrinsics()
 
         align_to = rs.stream.color
         self.align = rs.align(align_to)
@@ -70,8 +73,8 @@ class IntelCamera:
         color_frame = aligned_frames.get_color_frame()
         depth_frame = aligned_frames.get_depth_frame()
 
-        self.depth_intrinsics = depth_frame.profile.as_video_stream_profile().intrinsics
-        self.color_intrinsics = color_frame.profile.as_video_stream_profile().intrinsics
+        # self.depth_intrinsics = depth_frame.profile.as_video_stream_profile().intrinsics
+        # self.color_intrinsics = color_frame.profile.as_video_stream_profile().intrinsics
 
         depth_frame = self.depth_to_disparity.process(depth_frame)
         depth_frame = self.dec_filter.process(depth_frame)

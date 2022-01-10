@@ -18,18 +18,51 @@ class Driver(BaseDriver):
     """
 
     def __init__(
-        self, name: str, parent, source = IntelCamera(640, 480), fps: int = 30
+        self, name: str, parent, fps: int = 30
     ):  # TODO: Create Camera object and inherit the others from it
         super().__init__(name, parent)
 
-        self.source = source
+        # self.source = IntelCamera(640, 480)
+
         self.fps = fps
 
         self.create_event("color")
         self.create_event("depth")
+        self.create_event("source")
+
+
+    def pre_run(self):
+        self.source = IntelCamera(640, 480)
+        source_data = {
+            "color_intrinsics": {
+                "width": self.source.color_intrinsics.width,
+                "height": self.source.color_intrinsics.height,
+                "ppx": self.source.color_intrinsics.ppx,
+                "ppy": self.source.color_intrinsics.ppy,
+                "fx": self.source.color_intrinsics.fx,
+                "fy": self.source.color_intrinsics.fy,
+                "model": self.source.color_intrinsics.model,
+                "coeffs": self.source.color_intrinsics.coeffs
+            },
+            "depth_intrinsics": {
+                "width": self.source.depth_intrinsics.width,
+                "height": self.source.depth_intrinsics.height,
+                "ppx": self.source.depth_intrinsics.ppx,
+                "ppy": self.source.depth_intrinsics.ppy,
+                "fx": self.source.depth_intrinsics.fx,
+                "fy": self.source.depth_intrinsics.fy,
+                "model": self.source.depth_intrinsics.model,
+                "coeffs": self.source.depth_intrinsics.coeffs
+            },
+            "width": self.source.width,
+            "height": self.source.height
+        }
+
+        self.set_event_data("source", source_data)
 
 
     def loop(self):
+        # print(self.source)
         color, depth = self.source.next_frame()
 
         if color is not None:
