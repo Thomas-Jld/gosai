@@ -15,10 +15,10 @@ to_mirror = [
 ]
 
 inter_rates = {
-    "body_pose": 0.8,
-    "right_hand_pose": 0.8,
-    "left_hand_pose": 0.8,
-    "face_mesh": 1
+    "body_pose": 0.4,
+    "right_hand_pose": 0.4,
+    "left_hand_pose": 0.4,
+    "face_mesh": 0.6
 }
 
 def mirror_data(data: dict, old_data: dict = {}) -> dict:
