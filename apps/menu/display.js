@@ -1,7 +1,7 @@
 import { Face } from "./components/face.js"
 import { Hand } from "./components/hand.js"
 import { Body } from "./components/body.js"
-import { Menu } from "./components/menu.js"
+import { Menu } from "./components/menu2.js"
 
 export const menu = new p5(( sketch ) => {
     sketch.name = "menu"
