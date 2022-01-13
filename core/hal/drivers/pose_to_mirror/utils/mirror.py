@@ -16,8 +16,8 @@ to_mirror = [
 
 inter_rates = {
     "body_pose": 0.4,
-    "right_hand_pose": 0.4,
-    "left_hand_pose": 0.4,
+    "right_hand_pose": 0.6,
+    "left_hand_pose": 0.6,
     "face_mesh": 0.6
 }
 
