@@ -24,5 +24,7 @@ RUN useradd -m -s /bin/bash miroir
 COPY . .
 
 RUN chmod -R 777 /mirror/
+RUN chmod -R 777 /usr/local/lib/python3.7/dist-packages/mediapipe/modules/
+
 
 CMD su miroir -s /bin/bash -c "python3 init.py"

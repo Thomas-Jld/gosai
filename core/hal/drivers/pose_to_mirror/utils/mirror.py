@@ -1,5 +1,5 @@
-x_offset = -260 # millimeters
-y_offset = 70
+x_offset = -230 # millimeters, increase to move left
+y_offset = 100 #Increase to move down
 
 screen_width = 392.85 # millimeters
 screen_height = 698.4

@@ -8,7 +8,8 @@ def init():
     return mp_holistic.Holistic(
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5,
-        smooth_landmarks=False
+        smooth_landmarks=False,
+        model_complexity=0
     )
 
 

@@ -4,7 +4,7 @@ from typing import List
 import numpy as np
 import pyrealsense2 as rs
 
-theta = math.radians(13.8)
+theta = math.radians(17)
 color_intrinsics = None
 depth_intrinsics = None
 
