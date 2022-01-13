@@ -50,9 +50,9 @@ export class Game {
         this.ball.add(new createVector(this.speed.x * dt, this.speed.y * dt));
         this.prev = millis();
 
-        if (this.ball.y > height - this.radius) {
+        if (this.ball.y > height/2 - this.radius) {
             this.speed.y *= -this.rebound_factor;
-            this.ball.y = height- this.radius;
+            this.ball.y = height/2 - this.radius;
         }
 
         if (this.ball.x > width - this.radius) {
@@ -84,10 +84,10 @@ export class Game {
             let bottom_bound = this.right_hand_pose.reduce((a, b) => max(a, b[1]), 0);
             // console.log(left_bound, right_bound);
             if (
-                this.ball.x > left_bound &&
-                this.ball.x < right_bound &&
-                this.ball.y > top_bound &&
-                this.ball.y < bottom_bound &&
+                this.ball.x > left_bound - this.radius &&
+                this.ball.x < right_bound + this.radius &&
+                this.ball.y > top_bound - this.radius &&
+                this.ball.y < bottom_bound + this.radius &&
                 !this.rebounded
                 // this.speed.y > 0
             ) {
@@ -126,11 +126,12 @@ export class Game {
             let bottom_bound = this.left_hand_pose.reduce((a, b) => max(a, b[1]), 0);
             // console.log(left_bound, right_bound);
             if (
-                this.ball.x > left_bound &&
-                this.ball.x < right_bound &&
-                this.ball.y > top_bound &&
-                this.ball.y < bottom_bound &&
+                this.ball.x > left_bound - this.radius &&
+                this.ball.x < right_bound + this.radius &&
+                this.ball.y > top_bound - this.radius &&
+                this.ball.y < bottom_bound + this.radius &&
                 !this.rebounded
+                // this.speed.y > 0
             ) {
                 let normal;
                 if(this.left_hand_pose[12][0] > this.left_hand_pose[0][0]){
