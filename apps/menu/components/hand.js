@@ -79,8 +79,9 @@ export class Hand {
         ){
             this.junctions.forEach(parts => {
                 parts.forEach(pair => {
+                    print(this.hand_pose[pair[0]][3])
                     if (
-                        this.hand_pose[pair[0]][3] >= 0.2 &&
+                        this.hand_pose[pair[0]][3] >= 0 &&
                         this.hand_pose[pair[0]][1] > 0 &&
                         this.hand_pose[pair[1]][1] > 0
                     ) {
@@ -99,7 +100,7 @@ export class Hand {
     }
 
     update_data(pose, sign) {
-        if (pose != undefined) {
+        if (pose != undefined && pose.length > 0) {
             this.hand_pose = pose
         }
         if (sign != undefined) {
