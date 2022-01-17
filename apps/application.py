@@ -23,13 +23,13 @@ class BaseApplication(threading.Thread):
         """Listen to events from the driver"""
         ps = self.db.pubsub()
         ps.subscribe(f"{source}_{event}")
-        for _ in ps.listen():
-            self.listener(source, event)
+        for binary_data in ps.listen():
+            self.listener(source, event, binary_data['data'])
             if not self.started:
                 break
 
 
-    def listener(self, source, event) -> None:
+    def listener(self, source, event, data) -> None:
         """
         Gets notified when some data (named "event")
         of a driver ("source") is updated
