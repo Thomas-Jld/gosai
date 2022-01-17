@@ -16,7 +16,6 @@ export class Game {
     }
 
     reset() {
-
         this.ball = new createVector(width / 2, 60);
 
         this.speed = new createVector(0, 0);
@@ -50,18 +49,18 @@ export class Game {
         this.ball.add(new createVector(this.speed.x * dt, this.speed.y * dt));
         this.prev = millis();
 
-        if (this.ball.y > height/2 - this.radius) {
+        if (this.ball.y > height / 2 - this.radius) {
             this.speed.y *= -this.rebound_factor;
-            this.ball.y = height/2 - this.radius;
+            this.ball.y = height / 2 - this.radius;
         }
 
         if (this.ball.x > width - this.radius) {
-            this.speed.x *= -this.rebound_factor*0.8;
+            this.speed.x *= -this.rebound_factor * 0.8;
             this.ball.x = width - this.radius;
         }
 
         if (this.ball.x < this.radius) {
-            this.speed.x *= -this.rebound_factor*0.8;
+            this.speed.x *= -this.rebound_factor * 0.8;
             this.ball.x = this.radius;
         }
 
@@ -70,18 +69,26 @@ export class Game {
             this.ball.y = this.radius;
         }
 
-
-        if (this.right_hand_pose != undefined && this.right_hand_pose.length > 0) {
+        if (
+            this.right_hand_pose != undefined &&
+            this.right_hand_pose.length > 0
+        ) {
             let left_bound = this.right_hand_pose.reduce(
                 (a, b) => min(a, b[0]),
                 width
             );
-            let right_bound = this.right_hand_pose.reduce((a, b) => max(a, b[0]), 0);
+            let right_bound = this.right_hand_pose.reduce(
+                (a, b) => max(a, b[0]),
+                0
+            );
             let top_bound = this.right_hand_pose.reduce(
                 (a, b) => min(a, b[1]),
                 height
             );
-            let bottom_bound = this.right_hand_pose.reduce((a, b) => max(a, b[1]), 0);
+            let bottom_bound = this.right_hand_pose.reduce(
+                (a, b) => max(a, b[1]),
+                0
+            );
             // console.log(left_bound, right_bound);
             if (
                 this.ball.x > left_bound - this.radius &&
@@ -92,20 +99,28 @@ export class Game {
                 // this.speed.y > 0
             ) {
                 let normal;
-                if(this.right_hand_pose[12][0] > this.right_hand_pose[0][0]){
+                if (this.right_hand_pose[12][0] > this.right_hand_pose[0][0]) {
                     normal = createVector(
-                        -(this.right_hand_pose[12][1] - this.right_hand_pose[0][1]),
+                        -(
+                            this.right_hand_pose[12][1] -
+                            this.right_hand_pose[0][1]
+                        ),
                         this.right_hand_pose[12][0] - this.right_hand_pose[0][0]
-                    )
-                }
-                else{
+                    );
+                } else {
                     normal = createVector(
-                        this.right_hand_pose[12][1] - this.right_hand_pose[0][1],
-                        -(this.right_hand_pose[12][0] - this.right_hand_pose[0][0])
-                    )
+                        this.right_hand_pose[12][1] -
+                            this.right_hand_pose[0][1],
+                        -(
+                            this.right_hand_pose[12][0] -
+                            this.right_hand_pose[0][0]
+                        )
+                    );
                 }
-                let projection = p5.Vector.dot(this.speed, normal) / p5.Vector.dot(normal, normal)
-                this.speed = p5.Vector.sub(
+                let projection =
+                    p5.Vector.dot(this.speed, normal) /
+                    p5.Vector.dot(normal, normal);
+                this.speed = p5.Vector.add(
                     p5.Vector.mult(this.speed, -1),
                     p5.Vector.mult(normal, 2 * projection)
                 );
@@ -113,17 +128,26 @@ export class Game {
             }
         }
 
-        if (this.left_hand_pose != undefined && this.left_hand_pose.length > 0) {
+        if (
+            this.left_hand_pose != undefined &&
+            this.left_hand_pose.length > 0
+        ) {
             let left_bound = this.left_hand_pose.reduce(
                 (a, b) => min(a, b[0]),
                 width
             );
-            let right_bound = this.left_hand_pose.reduce((a, b) => max(a, b[0]), 0);
+            let right_bound = this.left_hand_pose.reduce(
+                (a, b) => max(a, b[0]),
+                0
+            );
             let top_bound = this.left_hand_pose.reduce(
                 (a, b) => min(a, b[1]),
                 height
             );
-            let bottom_bound = this.left_hand_pose.reduce((a, b) => max(a, b[1]), 0);
+            let bottom_bound = this.left_hand_pose.reduce(
+                (a, b) => max(a, b[1]),
+                0
+            );
             // console.log(left_bound, right_bound);
             if (
                 this.ball.x > left_bound - this.radius &&
@@ -134,20 +158,27 @@ export class Game {
                 // this.speed.y > 0
             ) {
                 let normal;
-                if(this.left_hand_pose[12][0] > this.left_hand_pose[0][0]){
+                if (this.left_hand_pose[12][0] > this.left_hand_pose[0][0]) {
                     normal = createVector(
-                        -(this.left_hand_pose[12][1] - this.left_hand_pose[0][1]),
+                        -(
+                            this.left_hand_pose[12][1] -
+                            this.left_hand_pose[0][1]
+                        ),
                         this.left_hand_pose[12][0] - this.left_hand_pose[0][0]
-                    )
-                }
-                else{
+                    );
+                } else {
                     normal = createVector(
                         this.left_hand_pose[12][1] - this.left_hand_pose[0][1],
-                        -(this.left_hand_pose[12][0] - this.left_hand_pose[0][0])
-                    )
+                        -(
+                            this.left_hand_pose[12][0] -
+                            this.left_hand_pose[0][0]
+                        )
+                    );
                 }
-                let projection = p5.Vector.dot(this.speed, normal) / p5.Vector.dot(normal, normal)
-                this.speed = p5.Vector.sub(
+                let projection =
+                    p5.Vector.dot(this.speed, normal) /
+                    p5.Vector.dot(normal, normal);
+                this.speed = p5.Vector.add(
                     p5.Vector.mult(this.speed, -1),
                     p5.Vector.mult(normal, 2 * projection)
                 );
