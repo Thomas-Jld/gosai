@@ -11,3 +11,4 @@ SpeechRecognition>=3.8.1
 pyglet>=1.5.21
 gTTS>=2.2.3
 eventlet>=0.33.0
+redis>=4.1.0
