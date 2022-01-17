@@ -2,10 +2,9 @@
 
 import time
 
-import json
-
 import core.hal.drivers.pose_to_mirror.utils.mirror as mi
 from core.hal.drivers.driver import BaseDriver
+from tools.binary_conversions import dict_to_bytes, bytes_to_dict
 
 
 class Driver(BaseDriver):
@@ -28,13 +27,13 @@ class Driver(BaseDriver):
         """Main loop"""
         start_t = time.time()
 
-        projected_data = self.parent.get_driver_event_data("pose", "projected_data")
-        # projected_data = self.bytes_to_dict(self.parent.get_driver_event_data("pose", "projected_data"))
+        projected_data = bytes_to_dict(
+            self.parent.get_driver_event_data("pose", "projected_data")
+        )
 
         if projected_data is not None:
-                self.mirrored_data = mi.mirror_data(projected_data, self.mirrored_data)
-                self.set_event_data("mirrored_data", self.mirrored_data)
-                # self.set_event_data("mirrored_data", self.dict_to_bytes(self.mirrored_data))
+            self.mirrored_data = mi.mirror_data(projected_data, self.mirrored_data)
+            self.set_event_data("mirrored_data", dict_to_bytes(self.mirrored_data))
         else:
             self.log("No pose data", 1)
 

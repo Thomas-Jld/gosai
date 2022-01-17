@@ -6,8 +6,8 @@ import mediapipe as mp
 def init():
     mp_holistic = mp.solutions.holistic
     return mp_holistic.Holistic(
-        min_detection_confidence=0.5,
-        min_tracking_confidence=0.5,
+        min_detection_confidence=0.8,
+        min_tracking_confidence=0.7,
         smooth_landmarks=False,
         model_complexity=0
     )

@@ -4,11 +4,13 @@ import json
 import time
 
 import numpy as np
+import pyrealsense2 as rs
 
 import core.hal.drivers.pose.utils.hands_signs as hs
 import core.hal.drivers.pose.utils.pose_estimation as pe
 from core.hal.drivers.driver import BaseDriver
 from core.hal.drivers.pose.utils.reflection import project
+from tools.binary_conversions import bytes_to_color, bytes_to_depth, dict_to_bytes
 
 
 class Driver(BaseDriver):
@@ -19,9 +21,6 @@ class Driver(BaseDriver):
 
     def __init__(self, name: str, parent, max_fps: int = 45):
         super().__init__(name, parent)
-
-        self.holistic = pe.init()
-        self.sign_provider = hs.init()
 
         self.register_to_driver("video", "color")
         self.register_to_driver("video", "depth")
@@ -34,31 +33,50 @@ class Driver(BaseDriver):
         self.fps = max_fps
         self.window = 0.7
 
-
-
     def pre_run(self):
-        time.sleep(0.5)
-        # self.source =None
-        self.source = self.parent.get_driver_event_data("video", "source")
-        # print(self.source)
+
+        self.holistic = pe.init()
+
+        self.sign_provider = hs.init()
+
+        self.source = video_provider = {
+            "color_intrinsics": {
+                "width": 640,
+                "height": 480,
+                "ppx": 327.2680358886719,
+                "ppy": 243.02333068847656,
+                "fx": 604.3840942382812,
+                "fy": 604.1060180664062,
+                "model": rs.pyrealsense2.distortion.inverse_brown_conrady,
+                "coeffs": [0.0, 0.0, 0.0, 0.0, 0.0],
+            },
+            "depth_intrinsics": {
+                "width": 640,
+                "height": 480,
+                "ppx": 321.746826171875,
+                "ppy": 234.80975341796875,
+                "fx": 380.9853515625,
+                "fy": 380.9853515625,
+                "model": rs.pyrealsense2.distortion.inverse_brown_conrady,
+                "coeffs": [0.0, 0.0, 0.0, 0.0, 0.0],
+            },
+            "width": 640,
+            "height": 480,
+        }
 
     def loop(self):
         """Main loop"""
         start_t = time.time()
 
-        color = self.parent.get_driver_event_data("video", "color")
-        depth = self.parent.get_driver_event_data("video", "depth")
-        # color = self.bytes_to_array(self.parent.get_driver_event_data("video", "color"))
-        # depth = self.bytes_to_array(self.parent.get_driver_event_data("video", "depth"))
-
+        color = bytes_to_color(self.parent.get_driver_event_data("video", "color"))
+        depth = bytes_to_depth(self.parent.get_driver_event_data("video", "depth"))
 
         if color is not None and depth is not None:
-            # t01 = time.time()
+            t01 = time.time()
             raw_data = pe.find_all_poses(self.holistic, color, self.window)
             # print(f"get_data: {1000*(time.time() - t01)}")
 
-            self.set_event_data("raw_data", raw_data)
-            # self.set_event_data("raw_data", self.dict_to_bytes(raw_data))
+            self.set_event_data("raw_data", dict_to_bytes(raw_data))
 
             if self.debug_data:
                 self.log(raw_data)
@@ -92,7 +110,7 @@ class Driver(BaseDriver):
                         hs.normalize_data(
                             raw_data["right_hand_pose"],
                             self.source["width"],
-                            self.source["height"]
+                            self.source["height"],
                         ),
                     )
 
@@ -111,7 +129,7 @@ class Driver(BaseDriver):
                         hs.normalize_data(
                             raw_data["left_hand_pose"],
                             self.source["width"],
-                            self.source["height"]
+                            self.source["height"],
                         ),
                     )
 
@@ -124,7 +142,7 @@ class Driver(BaseDriver):
                     ref=body[2],
                 )
 
-                self.set_event_data("projected_data", projected_data)
+                self.set_event_data("projected_data", dict_to_bytes(projected_data))
                 # self.set_event_data("projected_data", self.dict_to_bytes(projected_data))
                 if self.debug_data:
                     self.log(projected_data)
