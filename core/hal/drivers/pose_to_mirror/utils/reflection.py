@@ -16,7 +16,7 @@ def get_depth(point: list, depth_frame, depth_radius: int) -> float:
 
     try:
         return np.float64(
-            np.mean(
+            np.min(
                 depth_frame[
                     max(y - depth_radius, 0) : min(y + depth_radius, len(depth_frame)),
                     max(x - depth_radius, 0) : min(
