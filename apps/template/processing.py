@@ -11,8 +11,8 @@ class Application(BaseApplication):
         # self.requires = {"name of the driver": ["data"]}
 
 
-    def listener(self, source, event):
-        super().listener(source, event)
+    def listener(self, source, event, data):
+        super().listener(source, event, data)
 
         # * Example
         # if self.started and source == "a_driver" and event == "some_data":

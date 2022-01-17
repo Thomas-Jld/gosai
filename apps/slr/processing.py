@@ -9,8 +9,8 @@ class Application(BaseApplication):
         # self.requires = {"pose": ["mirrored_data"]}
 
 
-    def listener(self, source, event):
-        super().listener(source, event)
+    def listener(self, source, event, data):
+        super().listener(source, event, data)
 
         # if self.started and source == "pose" and event == "mirrored_data":
         #     self.data = self.hal.drivers["pose"].mirrored_data

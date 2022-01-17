@@ -1,5 +1,5 @@
 from apps.application import BaseApplication
-from tools.binary_conversions import bytes_to_dict
+from core.tools.binary_conversions import bytes_to_dict
 
 
 class Application(BaseApplication):
@@ -20,10 +20,9 @@ class Application(BaseApplication):
                 },
             )
 
-    def listener(self, source, event):
-        super().listener(source, event)
+    def listener(self, source, event, data):
+        super().listener(source, event, data)
 
         if source == "pose_to_mirror" and event == "mirrored_data":
-            self.data = bytes_to_dict(self.hal.get_driver_event_data("pose_to_mirror", "mirrored_data"))
-            # print(self.data)
+            self.data = bytes_to_dict(data)
             self.server.send_data(self.name, self.data)
