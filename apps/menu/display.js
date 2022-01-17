@@ -49,7 +49,8 @@ export const menu = new p5((sketch) => {
             sketch.menu.remove_all_from(0);
             for (let i = 0; i < data["started"].length; i++) {
                 if (
-                    data["started"][i] != "menu"
+                    data["started"][i] != "menu" &&
+                    data["started"][i] != "slr"
                 ) {
                     sketch.menu.add_application(0, data["started"][i], true);
                 }
@@ -57,7 +58,8 @@ export const menu = new p5((sketch) => {
 
             for (let i = 0; i < data["stopped"].length; i++) {
                 if (
-                    data["stopped"][i] != "menu"
+                    data["stopped"][i] != "menu" &&
+                    data["stopped"][i] != "slr"
                 ) {
                     sketch.menu.add_application(0, data["stopped"][i], false);
                 }
