@@ -6,7 +6,7 @@ import time
 
 from core.hal.drivers.video.cameras import IntelCamera, StandardCamera
 from core.hal.drivers.driver import BaseDriver
-from tools.binary_conversions import color_to_bytes, depth_to_bytes
+from core.tools.binary_conversions import color_to_bytes, depth_to_bytes
 
 
 class Driver(BaseDriver):
@@ -21,8 +21,6 @@ class Driver(BaseDriver):
         self, name: str, parent, fps: int = 30
     ):  # TODO: Create Camera object and inherit the others from it
         super().__init__(name, parent)
-
-        # self.source = IntelCamera(640, 480)
 
         self.fps = fps
 
