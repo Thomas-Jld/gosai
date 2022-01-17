@@ -10,10 +10,10 @@ import time
 from multiprocessing import Manager, Process, Queue, Value
 
 import numpy as np
-# import redis
+import redis
 
 
-class BaseDriver(threading.Thread):
+class BaseDriver(Process):
     """Base class for all drivers"""
 
     def __init__(self, name, parent):
@@ -24,10 +24,9 @@ class BaseDriver(threading.Thread):
         self.commands = {}
         self.started = Value("i", 0) #False
         self.paused = Value("i", 0)  #False
-        self.registered = {"all": []}
+        self.registered = {} # Lists of entities registered to each events
         self.requires = {}
-        self.data = {} # Manager().dict()
-        # self.db = redis.Redis(host='localhost', port=6379, db=0)
+        self.db = redis.Redis(host='localhost', port=6379, db=0)
 
 
     def execute(self, command, arguments):
@@ -46,7 +45,7 @@ class BaseDriver(threading.Thread):
         """
         Runs once at the start of the driver
         """
-        # self.db = redis.Redis(host='localhost', port=6379, db=0)
+        self.db = redis.Redis(host='localhost', port=6379, db=0)
 
     def run(self):
         """Runs when the thread is started"""
@@ -104,44 +103,32 @@ class BaseDriver(threading.Thread):
 
         self.log(f"Creating event '{event}'", 2)
         self.registered[event] = []
-        self.data[event] = None #Queue()
-        # self.db.set(f"{self.name}_{event}", "")
+
+        self.db.set(f"{self.name}_{event}", "")
+
         return True
 
 
     def set_event_data(self, event, data):
         """Adds data to the driver and notifies the listeners"""
 
-        if event not in self.data:
+        if event not in self.registered.keys():
             self.log(f"Tried to add data for an unknown event '{event}'", 3)
             return False
 
-        # while not self.data[event].empty():
-        #     self.data[event].get()
-
-        # self.data[event].put(data)
-        # self.data[event].task_done()
-        self.data[event] = data
-
-        # self.db.set(f"{self.name}_{event}", data)
-        self.notify(event)
+        self.db.set(f"{self.name}_{event}", data)
+        self.db.publish(f"{self.name}_{event}", data)
         return True
 
 
     def get_event_data(self, event):
         """Returns the data of an event"""
 
-        if event not in self.data:
+        if event not in self.registered.keys():
             self.log(f"Tried to get data for an unknown event '{event}'", 3)
             return None
 
-        # data = self.data[event].get()
-        # self.data[event].put(data)
-        # self.data[event].task_done()
-
-        data = self.data[event]
-
-        # data = self.db.get(f"{self.name}_{event}")
+        data = self.db.get(f"{self.name}_{event}")
         return data
 
 
@@ -155,7 +142,7 @@ class BaseDriver(threading.Thread):
         self.parent.register_to_driver(driver_name, self, event)
 
 
-    def register(self, entity, event="all"):
+    def register(self, entity, event):
         """Registers an entity instance to a driver's event"""
 
         self.log(f"Registering entity '{entity}' to '{event}'", 2)
@@ -165,7 +152,7 @@ class BaseDriver(threading.Thread):
             self.registered[event] = [entity]
 
 
-    def unregister(self, entity, event="all") -> bool:
+    def unregister(self, entity, event) -> bool:
         """Unregisters an application instance from a driver's event"""
 
         if event not in self.registered:
@@ -187,7 +174,7 @@ class BaseDriver(threading.Thread):
 
     def notify(self, event) -> bool:
         """Notify every registered app of an event"""
-
+        print(f"{self.name} notified of {event}")
         if event not in self.registered:
             self.log(f"Tried to notify for an unknown event '{event}'", 3)
             return False
@@ -224,24 +211,3 @@ class BaseDriver(threading.Thread):
 
     def __str__(self):
         return str(self.name)
-
-    # def array_to_bytes(self, x: np.ndarray) -> bytes:
-    #     np_bytes = BytesIO()
-    #     np.save(np_bytes, x, allow_pickle=True)
-    #     return np_bytes.getvalue()
-
-    # def bytes_to_array(self, b: bytes) -> np.ndarray:
-    #     try:
-    #         np_bytes = BytesIO(b)
-    #         return np.load(np_bytes, allow_pickle=True)
-    #     except:
-    #         return None
-
-    # def dict_to_bytes(self, x: dict) -> bytes:
-    #     return json.dumps(x)
-
-    # def bytes_to_dict(self, b: bytes) -> dict:
-    #     try:
-    #         return json.loads(b)
-    #     except:
-    #         return None
