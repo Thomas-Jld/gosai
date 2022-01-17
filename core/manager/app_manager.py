@@ -7,6 +7,7 @@ class AppManager:
     """Manages the apps"""
 
     def __init__(self, hal, server):
+        """Initializes the app manager"""
         self.hal = hal
         self.server = server
 
