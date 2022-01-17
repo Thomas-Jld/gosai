@@ -1,20 +1,20 @@
 version: "2"
 
 services:
-  gosai:
-    image: thomasj27/gosai:mirror-cpu-0
-    network_mode: "host"
-    privileged: true
-    depends_on:
-      - redis
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=
-      - DISPLAY
-      - QT_X11_NO_MITSHM=1
-    volumes:
-      - /dev:/dev
+  # gosai:
+  #   image: thomasj27/gosai:mirror-cpu-0
+  #   network_mode: "host"
+  #   privileged: true
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - REDIS_PASSWORD=
+  #     - DISPLAY
+  #     - QT_X11_NO_MITSHM=1
+  #   volumes:
+  #     - /dev:/dev
 
   redis:
     image: docker.io/bitnami/redis:6.2
