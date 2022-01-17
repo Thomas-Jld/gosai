@@ -1,3 +1,4 @@
+import redis
 import threading
 
 class BaseApplication(threading.Thread):
@@ -15,6 +16,17 @@ class BaseApplication(threading.Thread):
         self.data = {} # data that is sent to the js script
 
         self.started = False
+
+        self.db = redis.Redis(host='localhost', port=6379, db=0)
+
+    def subscriber(self, source, event):
+        """Listen to events from the driver"""
+        ps = self.db.pubsub()
+        ps.subscribe(f"{source}_{event}")
+        for _ in ps.listen():
+            self.listener(source, event)
+            if not self.started:
+                break
 
 
     def listener(self, source, event) -> None:
@@ -41,6 +53,9 @@ class BaseApplication(threading.Thread):
     def run(self):
         """Thread that runs the application"""
         self.started = True
+        for driver in self.requires:
+            for event in self.requires[driver]:
+                threading.Thread(target=self.subscriber, args=(driver, event)).start()
 
     def __str__(self):
         return str(self.name)
