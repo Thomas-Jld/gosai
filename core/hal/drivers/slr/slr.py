@@ -6,7 +6,7 @@ import time
 
 import core.hal.drivers.slr.utils.get_sign as gs
 from core.hal.drivers.driver import BaseDriver
-
+from core.tools.binary_conversions import dict_to_bytes, bytes_to_dict
 
 class Driver(BaseDriver):
     """Sign Language Recognition driver"""
@@ -19,11 +19,12 @@ class Driver(BaseDriver):
 
         self.model = gs.init()
         self.frames = []
+        self.fps = 60
 
     def loop(self):
         start_t = time.time()
 
-        frame = self.parent.get_driver_event_data("pose", "raw_data")
+        frame = bytes_to_dict(self.parent.get_driver_event_data("pose", "raw_data"))
 
         if frame is not None:
 
@@ -35,8 +36,9 @@ class Driver(BaseDriver):
                 self.frames.append(frame)
                 sign, probability = gs.get_sign(self.model, self.frames)
                 self.set_event_data(
-                    "new_sign", {"sign": sign, "probability": probability}
+                    "new_sign", dict_to_bytes({"sign": sign, "probability": probability})
                 )
+                #(sign," ", probability)
 
         end_t = time.time()
 
