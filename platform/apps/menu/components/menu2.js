@@ -109,7 +109,7 @@ export class Menu {
 
 class Bubble {
   constructor(icon, d) {
-    this.icon = loadImage("/apps/menu/components/icons/" + icon);
+    this.icon = loadImage("/platform/apps/menu/components/icons/" + icon);
     this.d = d;
 
     this.x = 0;
@@ -578,7 +578,7 @@ function chooseAction(opt, action, type, sketch) {
 
 class BubbleMenu {
   constructor(menu) {
-    this.icon = loadImage("/apps/menu/components/icons/menu.svg");
+    this.icon = loadImage("/platform/apps/menu/components/icons/menu.svg");
     // this.d = d;
 
     this.x = width/2;

@@ -1,3 +1,4 @@
+import pickle
 import redis
 import threading
 
@@ -24,7 +25,10 @@ class BaseApplication(threading.Thread):
         ps = self.db.pubsub()
         ps.subscribe(f"{source}_{event}")
         for binary_data in ps.listen():
-            self.listener(source, event, binary_data['data'])
+            try:
+                self.listener(source, event, pickle.loads(bytes(binary_data['data'])))
+            except Exception as e:
+                pass
             if not self.started:
                 break
 

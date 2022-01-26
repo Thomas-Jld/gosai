@@ -6,7 +6,6 @@ import time
 
 from core.hal.drivers.video.cameras import IntelCamera, StandardCamera
 from core.hal.drivers.driver import BaseDriver
-from core.tools.binary_conversions import color_to_bytes, depth_to_bytes
 
 
 class Driver(BaseDriver):
@@ -36,9 +35,9 @@ class Driver(BaseDriver):
         color, depth = self.source.next_frame()
 
         if color is not None:
-            self.set_event_data("color", color_to_bytes(color))
+            self.set_event_data("color", color)
         if depth is not None:
-            self.set_event_data("depth", depth_to_bytes(depth))
+            self.set_event_data("depth", depth)
 
         time.sleep(1 / self.fps)  # Runs faster to be sure to get the current frame
 

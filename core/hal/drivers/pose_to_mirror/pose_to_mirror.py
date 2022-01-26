@@ -8,7 +8,6 @@ import core.hal.drivers.pose_to_mirror.utils.hands_signs as hs
 import core.hal.drivers.pose_to_mirror.utils.mirror as mi
 from core.hal.drivers.driver import BaseDriver
 from core.hal.drivers.pose_to_mirror.utils.reflection import project
-from core.tools.binary_conversions import dict_to_bytes, bytes_to_dict, bytes_to_depth
 
 
 class Driver(BaseDriver):
@@ -64,8 +63,8 @@ class Driver(BaseDriver):
         """Main loop"""
         start_t = time.time()
 
-        raw_data = bytes_to_dict(self.parent.get_driver_event_data("pose", "raw_data"))
-        depth = bytes_to_depth(self.parent.get_driver_event_data("video", "depth"))
+        raw_data = self.parent.get_driver_event_data("pose", "raw_data")
+        depth = self.parent.get_driver_event_data("video", "depth")
 
         if raw_data is not None and bool(raw_data["body_pose"]) and depth is not None:
             flag_1 = time.time()
@@ -128,8 +127,8 @@ class Driver(BaseDriver):
                 ref=body[2],
             )
 
-            self.set_event_data("projected_data", dict_to_bytes(projected_data))
-            # self.set_event_data("projected_data", self.dict_to_bytes(projected_data))
+            self.set_event_data("projected_data", projected_data)
+
             if self.debug_data:
                 self.log(projected_data)
 
@@ -139,7 +138,7 @@ class Driver(BaseDriver):
                 self.log(f"Projection: {(flag_2 - flag_1)*1000} ms")
 
             self.mirrored_data = mi.mirror_data(projected_data, self.mirrored_data)
-            self.set_event_data("mirrored_data", dict_to_bytes(self.mirrored_data))
+            self.set_event_data("mirrored_data", self.mirrored_data)
 
 
         end_t = time.time()

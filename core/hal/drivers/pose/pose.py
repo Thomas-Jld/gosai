@@ -6,7 +6,6 @@ import numpy as np
 
 import core.hal.drivers.pose.utils.pose_estimation as pe
 from core.hal.drivers.driver import BaseDriver
-from core.tools.binary_conversions import bytes_to_color, dict_to_bytes
 
 
 class Driver(BaseDriver):
@@ -35,13 +34,13 @@ class Driver(BaseDriver):
     def loop(self):
         start_t = time.time()
 
-        color = bytes_to_color(self.parent.get_driver_event_data("video", "color"))
+        color = self.parent.get_driver_event_data("video", "color")
 
         if color is not None:
             raw_data = pe.find_all_poses(self.holistic, color, self.window)
 
             flag_1 = time.time()
-            self.set_event_data("raw_data", dict_to_bytes(raw_data))
+            self.set_event_data("raw_data", raw_data)
 
             if self.debug_data:
                 self.log(raw_data)

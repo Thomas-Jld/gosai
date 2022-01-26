@@ -1,8 +1,7 @@
 from apps.application import BaseApplication
-from core.tools.binary_conversions import bytes_to_dict
 
 class Application(BaseApplication):
-    """Poke-It"""
+    """Bounce"""
 
     def __init__(self, name, hal, server, manager):
         super().__init__(name, hal, server, manager)
@@ -12,7 +11,7 @@ class Application(BaseApplication):
         super().listener(source, event, data)
 
         if source == "pose_to_mirror" and event == "mirrored_data":
-            self.data = bytes_to_dict(data)
+            self.data = data
             self.data = {
                 "left_hand_pose": self.data["left_hand_pose"],
                 "right_hand_pose": self.data["right_hand_pose"]

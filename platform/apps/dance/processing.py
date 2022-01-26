@@ -1,5 +1,4 @@
 from apps.application import BaseApplication
-from core.tools.binary_conversions import bytes_to_dict
 
 class Application(BaseApplication):
     """Dance"""
@@ -12,5 +11,5 @@ class Application(BaseApplication):
         super().listener(source, event, data)
 
         if source == "pose_to_mirror" and event == "mirrored_data":
-            self.data = bytes_to_dict(data)
+            self.data = data
             self.server.send_data(self.name, self.data["body_pose"])

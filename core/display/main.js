@@ -12,7 +12,7 @@ let recieved = false;
 
 function setup() {
     canvas = createCanvas(windowWidth, windowHeight);
-    frameRate(60);
+    frameRate(40);
 }
 
 function draw() {

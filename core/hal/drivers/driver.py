@@ -1,13 +1,11 @@
 # Base driver template
 
 import datetime
-import json
 import os
-# from queue import Queue
+import pickle
 import threading
 import time
-# from io import BytesIO
-from multiprocessing import Manager, Process, Queue, Value
+from multiprocessing import Process, Value
 
 import numpy as np
 import redis
@@ -22,12 +20,11 @@ class BaseDriver(Process):
         self.name = name
         self.parent = parent
         self.commands = {}
-        self.started = Value("i", 0) #False
-        self.paused = Value("i", 0)  #False
-        self.registered = {} # Lists of entities registered to each events
+        self.started = Value("i", 0)  # False
+        self.paused = Value("i", 0)  # False
+        self.registered = {}  # Lists of entities registered to each events
         self.requires = {}
-        self.db = redis.Redis(host='localhost', port=6379, db=0)
-
+        self.db = redis.Redis(host="localhost", port=6379, db=0)
 
     def execute(self, command, arguments):
         """Executes a command with the given arguments"""
@@ -45,7 +42,7 @@ class BaseDriver(Process):
         """
         Runs once at the start of the driver
         """
-        self.db = redis.Redis(host='localhost', port=6379, db=0)
+        self.db = redis.Redis(host="localhost", port=6379, db=0)
 
     def run(self):
         """Runs when the thread is started"""
@@ -67,7 +64,6 @@ class BaseDriver(Process):
         """
         time.sleep(0.5)
 
-
     def resume(self):
         """Resumes the driver"""
 
@@ -75,11 +71,8 @@ class BaseDriver(Process):
 
         for driver_name in self.requires:
             for event in self.requires[driver_name]:
-                self.parent.register_to_driver(
-                    driver_name, self, event
-                )
+                self.parent.register_to_driver(driver_name, self, event)
         self.paused.value = 0
-
 
     def stop(self):
         """Stops the driver"""
@@ -88,12 +81,9 @@ class BaseDriver(Process):
 
         for driver_name in self.requires:
             for event in self.requires[driver_name]:
-                self.parent.unregister_from_driver(
-                    driver_name, self, event
-                )
+                self.parent.unregister_from_driver(driver_name, self, event)
 
         self.paused.value = 1
-
 
     def create_event(self, event) -> bool:
         """Adds an event to the driver"""
@@ -108,7 +98,6 @@ class BaseDriver(Process):
 
         return True
 
-
     def set_event_data(self, event, data):
         """Adds data to the driver and notifies the listeners"""
 
@@ -116,10 +105,9 @@ class BaseDriver(Process):
             self.log(f"Tried to add data for an unknown event '{event}'", 3)
             return False
 
-        self.db.set(f"{self.name}_{event}", data)
-        self.db.publish(f"{self.name}_{event}", data)
+        self.db.set(f"{self.name}_{event}", pickle.dumps(data))
+        self.db.publish(f"{self.name}_{event}", pickle.dumps(data))
         return True
-
 
     def get_event_data(self, event):
         """Returns the data of an event"""
@@ -129,8 +117,10 @@ class BaseDriver(Process):
             return None
 
         data = self.db.get(f"{self.name}_{event}")
-        return data
-
+        try:
+            return pickle.loads(data)
+        except:
+            return None
 
     def register_to_driver(self, driver_name, event):
         """
@@ -141,7 +131,6 @@ class BaseDriver(Process):
         self.requires[driver_name].append(event)
         self.parent.register_to_driver(driver_name, self, event)
 
-
     def register(self, entity, event):
         """Registers an entity instance to a driver's event"""
 
@@ -150,7 +139,6 @@ class BaseDriver(Process):
             self.registered[event].append(entity)
         else:
             self.registered[event] = [entity]
-
 
     def unregister(self, entity, event) -> bool:
         """Unregisters an application instance from a driver's event"""
@@ -171,10 +159,8 @@ class BaseDriver(Process):
 
         return True
 
-
     def notify(self, event) -> bool:
         """Notify every registered app of an event"""
-        print(f"{self.name} notified of {event}")
         if event not in self.registered:
             self.log(f"Tried to notify for an unknown event '{event}'", 3)
             return False
@@ -184,7 +170,6 @@ class BaseDriver(Process):
             threading.Thread(target=app.listener, args=(self.name, event)).start()
 
         return True
-
 
     def listener(self, source, event) -> bool:
         """
@@ -198,16 +183,17 @@ class BaseDriver(Process):
             self.log(f"not subscrbed to {event} from {source}", 3)
             return False
 
-
     def log(self, message, level=1):
         """Save logs. TODO: Temporary file"""
 
         if level >= int(os.environ["LOG_LEVEL"]):
             print(f"{self.name}: {message}")
 
-        with open(f"core/hal/logs/{self.name}.log", "a+") as log:
-            log.write(f"{datetime.datetime.now().strftime('%b-%d-%G-%I:%M:%S%p')} : {message}\n")
-
+        if level >= 2:
+            with open(f"core/hal/logs/{self.name}.log", "a+") as log:
+                log.write(
+                    f"{datetime.datetime.now().strftime('%b-%d-%G-%I:%M:%S%p')} : {message}\n"
+                )
 
     def __str__(self):
         return str(self.name)
