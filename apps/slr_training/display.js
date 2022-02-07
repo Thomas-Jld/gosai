@@ -1,40 +1,47 @@
-import { Slr } from "./components/slr.js"
+import { Guessing } from "./components/guessing.js"
 
-export const slr = new  p5(( sketch ) => {
-    sketch.name = "slr"
-    sketch.z_index = 2
+export const slr_training = new  p5(( sketch ) => {
+    sketch.name = "slr_training"
+    sketch.z_index = 0
     sketch.activated = false
+    
 
     sketch.set = (width, height, socket) => {
         sketch.selfCanvas = sketch.createCanvas(width, height).position(0, 0).style("z-index", sketch.z_index);
 
-        sketch.slr = new Slr(sketch)
+        sketch.slr_training = new Guessing(sketch)
         socket.on(sketch.name, (data) => {
-            sketch.slr.update_data(
+            sketch.slr_training.update_data(
                 data["guessed_sign"],
-                data["probability"]
+                data["probability"],
+                data["actions"],
+                
             )
-            // console.log(data["guessed_sign"])
+            //console.log(data["guessed_sign"])
         });
+
         sketch.emit = (name, data) => {
             socket.emit(name, data);
         };
+        
         sketch.activated = true;
     }
     
     sketch.resume = () => {
-        sketch.slr.reset();
+        sketch.slr_training.reset();
     };
 
-    sketch.pause = () => {};
+    sketch.pause = () => {
+        sketch.clear();
+    };
 
     sketch.update = () => {
-        sketch.slr.update()
+        sketch.slr_training.update()        
     }
 
     sketch.show = () => {
         if (!sketch.activated) return;
         sketch.clear();
-        sketch.slr.show(sketch);
+        sketch.slr_training.show(sketch);
     }
 });

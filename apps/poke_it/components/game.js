@@ -1,5 +1,5 @@
 export class Game {
-    constructor(sketch) {
+    constructor() {
         this.width = width * 0.8;
         this.height = height * 0.5;
         this.xoffset = width * 0.1;
