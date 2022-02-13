@@ -23,15 +23,15 @@ class Driver(BaseDriver):
             "hello",
             "thanks",
             "iloveyou",
-            "what's up",
-            "hey",
-            "my",
-            "name",
-            "nice",
-            "to meet you",
+            # "what's up",
+            # "hey",
+            # "my",
+            # "name",
+            # "nice",
+            # "to meet you",
         ]
 
-        self.model = gs.init()
+        self.model = gs.init(len(self.SLR_ACTIONS))
         self.frames = []
         self.fps = 20
 

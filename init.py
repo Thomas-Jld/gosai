@@ -13,6 +13,8 @@ server.start()
 
 app_manager = AppManager(hal, server)
 app_manager.start("menu")
+#app_manager.start("slr")
+#app_manager.start("slr_training")
 
 start_chrome()
 

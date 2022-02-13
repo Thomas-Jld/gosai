@@ -40,8 +40,13 @@ export class Slr{
         //Affichage de l'action détectée
         sketch.fill(this.dark_blue);
         sketch.noStroke();
-        sketch.rect(0,60,int(this.probability*this.guessed_sign.length*1.5),90);
 
+        console.log("guessed sign", this.guessed_sign)
+        if(this.guessed_sign != undefined)
+        {
+            sketch.rect(0,60,int(this.probability*this.guessed_sign.length *1.5),90);
+        }
+            
         sketch.textSize(32);
         sketch.fill(this.white);
         sketch.text(this.guessed_sign, 0, 85);

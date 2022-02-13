@@ -1,5 +1,5 @@
 export class Guessing {
-    
+
     constructor() {
         this.cyan = color(50, 250, 255);
         this.white = color(255, 255, 255);
@@ -16,10 +16,11 @@ export class Guessing {
         this.playable = true;
         this.start_playing = 0;
         this.running = true;
+        this.count_valid = 0;
     }
 
-    
-    
+
+
     playTuto() {
         // this.gif_sign = createImg("/apps/slr_training/components/videos/" + this.targeted_sign + ".webm");
         this.playable = false;
@@ -29,7 +30,7 @@ export class Guessing {
         this.video.autoplay();
         this.video.volume(0);
         this.video.size(550, 350);
-        this.video.position(1400, 50); //1500, 50
+        this.video.position(1000, 50); //1500, 50
         this.video.play();
         // this.video.play();
         // console.log(this.video);
@@ -43,15 +44,15 @@ export class Guessing {
         }
         // console.log("Playable : ",this.playable," , playing: ", this.playing);
 
-        
-        if(this.video != undefined)
-        {
+
+        if (this.video != undefined) {
             // on rejoue la vidéo toutes les 10 secondes si l'utilisateur ne trouve pas le mot
-            if(Date.now() - this.start_playing > 15000)
-            {
+            if (Date.now() - this.start_playing > 15000) {
+                this.video.hide();
                 this.playTuto();
                 return;
             }
+
 
             if (this.video.elt.ended) {
                 this.playing = false;
@@ -61,16 +62,16 @@ export class Guessing {
             //lancement de la vidéo si l'utilisateur fait le bon signe
             if (this.video.elt.ended && this.playable) {
                 // console.log("Play "+ this.targeted_sign);
+                this.video.hide();
                 this.playTuto();
                 return;
             }
         }
-        else
-        {
+        else {
             this.playTuto()
             return;
         }
-        
+
         if (guessed_sign != undefined && probability != undefined && !this.playing) {
             this.guessed_sign = guessed_sign;
             this.targeted_sign = this.actions[this.targeted_sign_idx];
@@ -89,21 +90,30 @@ export class Guessing {
             if (this.sentence.length > 5) {
                 this.sentence.shift();
             }
-            
+
         }
 
         if (this.guessed_sign == this.targeted_sign) {
+            this.count_valid += 1;
             //console.log("validated"); 
+            
+        }
+        else {
+            this.count_valid = 0;
+        }
+
+        if (this.count_valid >=10) {
+
             this.targeted_sign_idx++;
-            if (this.targeted_sign_idx <= this.actions.length) {
-                if(!this.playing)
-                {
+            if (this.targeted_sign_idx < this.actions.length) {
+                if (!this.playing) {
                     this.playable = true;
                 }
             }
+            this.count_valid = 0;
         }
 
-        if (this.targeted_sign_idx > this.actions.length) {
+        if (this.targeted_sign_idx >= this.actions.length) {
             this.running = false;
         }
     }
@@ -112,7 +122,10 @@ export class Guessing {
         //Affichage de l'action détectée
         sketch.fill(this.dark_blue);
         sketch.noStroke();
-        sketch.rect(0, 60, int(this.probability*this.guessed_sign.length*1.5), 40);
+        if (this.guessed_sign != undefined) {
+            sketch.rect(0, 60, int(this.probability * this.guessed_sign.length * 20), 40);
+        }
+
 
         sketch.textSize(32);
         sketch.fill(this.white);
@@ -137,8 +150,13 @@ export class Guessing {
         // text(this.sentence, 3, 30);
         sketch.text(this.sentence, 3, 30);
 
-        if (!this.running)
-        {
+        sketch.text(this.playable, 0, 185);
+
+        sketch.text(this.playing, 0, 225);
+
+        sketch.text(this.count_valid, 0, 265);
+
+        if (!this.running) {
             console.log("STOP APPLICATION");
             this.video.hide();
             sketch.emit("stop_application", {
