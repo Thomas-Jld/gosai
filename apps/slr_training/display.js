@@ -14,8 +14,7 @@ export const slr_training = new  p5(( sketch ) => {
             sketch.slr_training.update_data(
                 data["guessed_sign"],
                 data["probability"],
-                data["actions"],
-                
+                data["actions"] 
             )
             //console.log(data["guessed_sign"])
         });
@@ -37,6 +36,7 @@ export const slr_training = new  p5(( sketch ) => {
 
     sketch.update = () => {
         sketch.slr_training.update()        
+        
     }
 
     sketch.show = () => {

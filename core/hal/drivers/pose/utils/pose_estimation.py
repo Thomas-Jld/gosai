@@ -2,6 +2,8 @@
 
 import cv2
 import mediapipe as mp
+import numpy as np
+
 
 def init():
     mp_holistic = mp.solutions.holistic
@@ -85,10 +87,73 @@ def find_all_poses(holistic, frame, window):
 
     # e3 = time.time()
     # print(f"    Convert data: {(e3 - e2)*1000} ms")
+    return {"face_mesh": faces_landmarks,
+            "body_pose": body_landmarks,
+            "right_hand_pose": left_hands_landmarks,
+            "left_hand_pose": right_hands_landmarks}
 
-    return {
-        "face_mesh": faces_landmarks,
-        "body_pose": body_landmarks,
-        "right_hand_pose": left_hands_landmarks,
-        "left_hand_pose": right_hands_landmarks,
-    }
+
+def find_all_poses_not_croped(holistic, frame, window):
+    # start = time.time()
+    #frame.shape[1] = 640
+
+    image = frame.copy()
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    image.flags.writeable = False
+    results = holistic.process(image)
+
+    body_landmarks = []
+
+    if results.pose_landmarks:
+        for landmark in results.pose_landmarks.landmark:
+            body_landmarks.append(
+                [
+                    landmark.x,
+                    landmark.y,
+                    landmark.visibility
+                ]
+            )
+
+    faces_landmarks = []
+
+    if results.face_landmarks:
+        for landmark in results.face_landmarks.landmark:
+            faces_landmarks.append(
+                [
+                    landmark.x,
+                    landmark.y,
+                    landmark.visibility
+                ]
+            )
+
+    left_hands_landmarks = []
+
+    if results.left_hand_landmarks:
+        for landmark in results.left_hand_landmarks.landmark:
+            left_hands_landmarks.append(
+                [
+                    landmark.x,
+                    landmark.y,
+                    landmark.visibility
+                ]
+            )
+
+    right_hands_landmarks = []
+
+    if results.right_hand_landmarks:
+        for landmark in results.right_hand_landmarks.landmark:
+            right_hands_landmarks.append(
+                [
+                    landmark.x,
+                    landmark.y,
+                    landmark.visibility
+                ]
+            )
+
+    # e3 = time.time()
+    # print(f"    Convert data: {(e3 - e2)*1000} ms")
+    return {"face_mesh": faces_landmarks,
+            "body_pose": body_landmarks,
+            "right_hand_pose": left_hands_landmarks,
+            "left_hand_pose": right_hands_landmarks}

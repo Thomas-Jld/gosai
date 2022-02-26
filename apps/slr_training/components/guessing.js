@@ -19,8 +19,6 @@ export class Guessing {
         this.count_valid = 0;
     }
 
-
-
     playTuto() {
         // this.gif_sign = createImg("/apps/slr_training/components/videos/" + this.targeted_sign + ".webm");
         this.playable = false;
@@ -35,7 +33,7 @@ export class Guessing {
         // this.video.play();
         // console.log(this.video);
         this.guessed_sign = "empty";
-        this.start_playing = Date.now();
+        this.start_tuto = Date.now();
     }
 
     update_data(guessed_sign, probability, actions) {
@@ -44,10 +42,13 @@ export class Guessing {
         }
         // console.log("Playable : ",this.playable," , playing: ", this.playing);
 
+        if (Date.now() - this.start_tuto > 60000) {
+            this.running = false;
+        }
 
         if (this.video != undefined) {
             // on rejoue la vidéo toutes les 10 secondes si l'utilisateur ne trouve pas le mot
-            if (Date.now() - this.start_playing > 15000) {
+            if (Date.now() - this.start_tuto > 15000) {
                 this.video.hide();
                 this.playTuto();
                 return;
@@ -77,7 +78,7 @@ export class Guessing {
             this.targeted_sign = this.actions[this.targeted_sign_idx];
             this.probability = probability;
 
-            if (this.probability > this.threshold && this.guessed_sign != "nothing" && this.guessed_sign != "empty") {
+            if (this.probability > this.threshold && this.guessed_sign != "nothing" && this.guessed_sign != "empty" ) {
                 if (this.sentence.length > 0) {
                     if (this.guessed_sign != this.sentence[this.sentence.length - 1]) {
                         this.sentence.push(this.guessed_sign);
@@ -96,13 +97,13 @@ export class Guessing {
         if (this.guessed_sign == this.targeted_sign) {
             this.count_valid += 1;
             //console.log("validated"); 
-            
+
         }
         else {
             this.count_valid = 0;
         }
 
-        if (this.count_valid >=10) {
+        if (this.count_valid >= 10)  { // || this.targeted_sign_idx == 5
 
             this.targeted_sign_idx++;
             if (this.targeted_sign_idx < this.actions.length) {
@@ -150,11 +151,11 @@ export class Guessing {
         // text(this.sentence, 3, 30);
         sketch.text(this.sentence, 3, 30);
 
-        sketch.text(this.playable, 0, 185);
+        // sketch.text(this.playable, 0, 185);
 
-        sketch.text(this.playing, 0, 225);
+        // sketch.text(this.playing, 0, 225);
 
-        sketch.text(this.count_valid, 0, 265);
+        // sketch.text(this.count_valid, 0, 265);
 
         if (!this.running) {
             console.log("STOP APPLICATION");
